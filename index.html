@@ -13,33 +13,38 @@
     --teal: #3E5C6B;
     --grey: #8A8F94;
     --line: #D9D4C8;
+    --dark-blue: #0a1628;
+    --violet: #1a0f3d;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
   html, body{ height:100%; }
   body{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    background: var(--concrete);
-    color: var(--steel);
+    background: var(--dark-blue);
+    color: #e0e0ff;
     overflow: hidden;
   }
   #map{ height:100vh; width:100vw; }
 
   .leaflet-popup-content-wrapper{
     border-radius: 4px;
+    background: #1a1a2e;
+    border: 2px solid #00d4ff;
   }
   .leaflet-popup-content-wrapper h4{
     font-size:15px;
     font-weight:700;
     margin-bottom:4px;
+    color: #00d4ff;
   }
   .leaflet-popup-content-wrapper p{
     font-size:13px;
     margin: 2px 0;
-    color: #444;
+    color: #b0b0e0;
   }
   .leaflet-popup-content-wrapper .label{
     font-size:11px;
-    color: var(--grey);
+    color: #7a7aff;
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
@@ -51,12 +56,28 @@
     padding: 0;
     font-size: 13px;
     font-weight: 600;
-    color: var(--steel);
-    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 -1px 2px rgba(255,255,255,0.9);
+    color: #ffb347;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 -1px 3px rgba(0,0,0,0.8);
   }
   .factory-label::before{
     display:none;
   }
+
+  .location-label{
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #00d4ff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 -1px 3px rgba(0,0,0,0.8);
+  }
+  .location-label::before{
+    display:none;
+  }
+
+  .leaflet-attribution-flag, .leaflet-attribution { display:none; }
 </style>
 </head>
 <body>
@@ -66,8 +87,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* ============================================================
-   FACTORY DATA
-   Edit lat/lng, director, products, size here as needed.
+   FACTORY DATA — Brown dots
    ============================================================ */
 const factories = [
   { number: 1, name: "Factory 1", city: "Ho Chi Minh City", country: "Vietnam", lat: 10.8231, lng: 106.6297, director: "TBD", size: "TBD", products: [] },
@@ -81,7 +101,20 @@ const factories = [
 ];
 
 /* ============================================================
-   MAP SETUP — no API key needed, OpenStreetMap tiles are free
+   LOCATION DATA — Blue dots
+   ============================================================ */
+const locations = [
+  { name: "Dubai", country: "UAE", lat: 25.2048, lng: 55.2708 },
+  { name: "Trelleborg", country: "Sweden", lat: 55.3675, lng: 13.1593 },
+  { name: "Rotterdam", country: "Netherlands", lat: 51.9289, lng: 4.3957 },
+  { name: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631 },
+  { name: "Houston", country: "Texas, USA", lat: 29.7604, lng: -95.3698 },
+  { name: "Dordrecht", country: "Netherlands", lat: 51.8161, lng: 4.6695 },
+  { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198 }
+];
+
+/* ============================================================
+   MAP SETUP — Dark Blue/Violet with simplified cartography
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -91,26 +124,68 @@ const map = L.map('map', {
   maxBoundsViscosity: 1.0
 }).setView([25, 40], 2);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors',
+/* ============================================================
+   DARK BLUE/VIOLET TILE LAYER with high contrast borders
+   ============================================================ */
+L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_tonerBackground/{z}/{x}/{y}.png', {
+  attribution: '',
   maxZoom: 19,
   noWrap: true
 }).addTo(map);
 
-const dotIcon = () => L.divIcon({
+L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_tonerlabels/{z}/{x}/{y}.png', {
+  attribution: '',
+  maxZoom: 19,
+  noWrap: true
+}).addTo(map);
+
+/* Add dark overlay for violet effect */
+const overlayStyle = document.createElement('style');
+overlayStyle.innerHTML = `
+  .leaflet-tile-pane {
+    filter: invert(0.9) hue-rotate(200deg) brightness(0.6) contrast(1.2);
+  }
+  .leaflet-overlay-pane svg {
+    filter: invert(0.9) hue-rotate(200deg) brightness(0.6);
+  }
+`;
+document.head.appendChild(overlayStyle);
+
+/* ============================================================
+   FACTORY MARKER — Brown dots
+   ============================================================ */
+const factoryIcon = () => L.divIcon({
   className: '',
   html: `<div style="
-    width:12px;height:12px;border-radius:50%;
-    background:${'#D98E2B'};
-    border:2px solid white;
-    box-shadow:0 1px 4px rgba(0,0,0,0.4);
+    width:14px;height:14px;border-radius:50%;
+    background:#8B5A3C;
+    border:3px solid #ffb347;
+    box-shadow:0 0 6px rgba(139,90,60,0.8), 0 0 12px rgba(0,0,0,0.6);
   "></div>`,
-  iconSize: [12,12],
-  iconAnchor: [6,6]
+  iconSize: [14,14],
+  iconAnchor: [7,7]
 });
 
+/* ============================================================
+   LOCATION MARKER — Blue dots
+   ============================================================ */
+const locationIcon = () => L.divIcon({
+  className: '',
+  html: `<div style="
+    width:14px;height:14px;border-radius:50%;
+    background:#00d4ff;
+    border:3px solid #00ffff;
+    box-shadow:0 0 6px rgba(0,212,255,0.8), 0 0 12px rgba(0,255,255,0.4);
+  "></div>`,
+  iconSize: [14,14],
+  iconAnchor: [7,7]
+});
+
+/* ============================================================
+   ADD FACTORIES TO MAP
+   ============================================================ */
 factories.forEach(f => {
-  const m = L.marker([f.lat, f.lng], { icon: dotIcon() }).addTo(map);
+  const m = L.marker([f.lat, f.lng], { icon: factoryIcon() }).addTo(map);
 
   m.bindTooltip(f.city, {
     permanent: true,
@@ -127,6 +202,26 @@ factories.forEach(f => {
     <p><strong>Products:</strong> ${f.products.length ? f.products.join(', ') : 'TBD'}</p>
   `);
 });
+
+/* ============================================================
+   ADD LOCATIONS TO MAP
+   ============================================================ */
+locations.forEach(loc => {
+  const m = L.marker([loc.lat, loc.lng], { icon: locationIcon() }).addTo(map);
+
+  m.bindTooltip(loc.name, {
+    permanent: true,
+    direction: 'right',
+    offset: [8, 0],
+    className: 'location-label'
+  });
+
+  m.bindPopup(`
+    <h4>${loc.name}</h4>
+    <p><strong>Country/Region:</strong> ${loc.country}</p>
+  `);
+});
+
 </script>
 </body>
 </html>
