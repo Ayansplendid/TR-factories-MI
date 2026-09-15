@@ -179,40 +179,14 @@
     color: #0066cc;
     text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 -1px 3px rgba(255,255,255,0.8);
     z-index: 1000;
+    cursor: pointer;
   }
   .location-label::before{
     display:none;
   }
 
-  .city-label{
-    background: none;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    font-size: 11px;
-    font-weight: 600;
-    color: #666;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 -1px 2px rgba(255,255,255,0.9);
-    z-index: 500;
-    display: none;
-  }
-  .city-label::before{
-    display:none;
-  }
-
   .capital-label{
-    background: none;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    font-size: 10px;
-    font-weight: 600;
-    color: #8B6914;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 -1px 2px rgba(255,255,255,0.9);
-    z-index: 600;
-  }
-  .capital-label::before{
-    display:none;
+    display: none;
   }
 
   .leaflet-attribution-flag, .leaflet-attribution { display:none; }
@@ -225,21 +199,21 @@
 <div id="sidebar">
   <button id="sidebar-close">&times;</button>
   <div class="sidebar-header">
-    <h2>Factory Details</h2>
+    <h2 id="sidebar-title">Details</h2>
   </div>
   <div class="sidebar-content" id="sidebar-content">
-    <!-- Factory info will be inserted here -->
+    <!-- Info will be inserted here -->
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* ============================================================
-   FACTORY DATA — Brown dots
+   FACTORY DATA
    ============================================================ */
 const factories = [
   { number: 1, name: "Factory 1", city: "Ho Chi Minh City", country: "Vietnam", lat: 10.8231, lng: 106.6297, director: "Nguyen Van A", staff: 850, products: ["Electronics", "Components"] },
-  { number: 2, name: "Factory 2", city: "Qingdao", country: "China", lat: 36.0671, lng: 120.3826, director: "Li Wei", staff: 1200, products: ["Textiles", "Fabrics"] },
+  { number: 2, name: "Factory 2", city: "Qingdao", country: "China", lat: 36.0671, lng: 120.3826, director: "Li Wei", staff: 1200, products: ["Textiles", "Fabrics"], code: "TMEQ", category: "Marine Infra Products" },
   { number: 3, name: "Factory 3", city: "London", country: "United Kingdom", lat: 51.5072, lng: -0.1276, director: "James Smith", staff: 450, products: ["Machinery", "Parts"] },
   { number: 4, name: "Factory 4", city: "Manchester", country: "United Kingdom", lat: 53.4808, lng: -2.2426, director: "Michael Brown", staff: 680, products: ["Chemicals", "Compounds"] },
   { number: 5, name: "Factory 5", city: "Birmingham", country: "United Kingdom", lat: 52.4862, lng: -1.8904, director: "Sarah Johnson", staff: 520, products: ["Metal Works", "Castings"] },
@@ -249,42 +223,20 @@ const factories = [
 ];
 
 /* ============================================================
-   LOCATION DATA — Blue dots
+   LOCATION DATA — Blue dots with product info
    ============================================================ */
 const locations = [
-  { name: "Dubai", country: "UAE", lat: 25.2048, lng: 55.2708 },
-  { name: "Trelleborg", country: "Sweden", lat: 55.3675, lng: 13.1593 },
-  { name: "Rotterdam", country: "Netherlands", lat: 51.9289, lng: 4.3957 },
-  { name: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631 },
-  { name: "Houston", country: "Texas, USA", lat: 29.7604, lng: -95.3698 },
-  { name: "Dordrecht", country: "Netherlands", lat: 51.8161, lng: 4.6695 },
-  { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198 }
+  { name: "Dubai", country: "UAE", lat: 25.2048, lng: 55.2708, code: "TMEDX", category: "Hub & Distribution" },
+  { name: "Trelleborg", country: "Sweden", lat: 55.3675, lng: 13.1593, code: "TMETR", category: "Port & Logistics" },
+  { name: "Rotterdam", country: "Netherlands", lat: 51.9289, lng: 4.3957, code: "TMEROT", category: "Port & Logistics" },
+  { name: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631, code: "TMEMB", category: "Pacific Hub" },
+  { name: "Houston", country: "Texas, USA", lat: 29.7604, lng: -95.3698, code: "TMEHS", category: "North America Hub" },
+  { name: "Dordrecht", country: "Netherlands", lat: 51.8161, lng: 4.6695, code: "TMEDDR", category: "Port & Logistics" },
+  { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, code: "TMESG", category: "Asia Pacific Hub" }
 ];
 
 /* ============================================================
-   COUNTRY CAPITALS — Small dots for capitals
-   ============================================================ */
-const capitals = [
-  { name: "Beijing", country: "China", lat: 39.9042, lng: 116.4074 },
-  { name: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503 },
-  { name: "New Delhi", country: "India", lat: 28.7041, lng: 77.1025 },
-  { name: "Moscow", country: "Russia", lat: 55.7558, lng: 37.6173 },
-  { name: "Paris", country: "France", lat: 48.8566, lng: 2.3522 },
-  { name: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050 },
-  { name: "Madrid", country: "Spain", lat: 40.4168, lng: -3.7038 },
-  { name: "Rome", country: "Italy", lat: 41.9028, lng: 12.4964 },
-  { name: "Washington DC", country: "USA", lat: 38.9072, lng: -77.0369 },
-  { name: "Ottawa", country: "Canada", lat: 45.4215, lng: -75.6972 },
-  { name: "Mexico City", country: "Mexico", lat: 19.4326, lng: -99.1332 },
-  { name: "Brasília", country: "Brazil", lat: -15.7942, lng: -47.8822 },
-  { name: "Cairo", country: "Egypt", lat: 30.0444, lng: 31.2357 },
-  { name: "Canberra", country: "Australia", lat: -35.2809, lng: 149.1300 },
-  { name: "Bangkok", country: "Thailand", lat: 13.7563, lng: 100.5018 },
-  { name: "Hanoi", country: "Vietnam", lat: 21.0285, lng: 105.8542 }
-];
-
-/* ============================================================
-   MAP SETUP — Light green background
+   MAP SETUP — Light green background, more transparent
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -295,20 +247,22 @@ const map = L.map('map', {
 }).setView([25, 40], 2);
 
 /* ============================================================
-   LIGHT GREEN BACKGROUND LAYER
+   TRANSPARENT LIGHT GREEN BACKGROUND LAYER
    ============================================================ */
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '',
   maxZoom: 19,
   noWrap: true,
-  className: 'light-map-tiles'
+  className: 'light-map-tiles',
+  opacity: 0.3
 }).addTo(map);
 
 /* Apply light green filter to tiles */
 const style = document.createElement('style');
 style.innerHTML = `
   .light-map-tiles {
-    filter: brightness(1.3) saturate(0.6) hue-rotate(80deg);
+    filter: brightness(1.5) saturate(0.5) hue-rotate(80deg);
+    opacity: 0.3 !important;
   }
 `;
 document.head.appendChild(style);
@@ -328,7 +282,7 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
         weight: 2,
         opacity: 0.8,
         fillColor: '#c5e5c5',       /* Light green fill */
-        fillOpacity: 0.4
+        fillOpacity: 0.15
       },
       onEachFeature: function(feature, layer) {
         layer.unbindPopup();
@@ -339,7 +293,7 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
             color: '#0a1628',
             weight: 4,
             opacity: 1.0,
-            fillOpacity: 0.6
+            fillOpacity: 0.25
           });
           this.bringToFront();
         });
@@ -349,7 +303,7 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
             color: '#1a3a4a',
             weight: 2,
             opacity: 0.8,
-            fillOpacity: 0.4
+            fillOpacity: 0.15
           });
         });
       }
@@ -360,10 +314,13 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
 /* ============================================================
    SIDEBAR FUNCTIONS
    ============================================================ */
-function openSidebar(factory) {
+function openFactorySidebar(factory) {
   const sidebar = document.getElementById('sidebar');
   const sidebarContent = document.getElementById('sidebar-content');
+  const sidebarTitle = document.getElementById('sidebar-title');
   const mapDiv = document.getElementById('map');
+  
+  sidebarTitle.textContent = 'Factory Details';
   
   sidebarContent.innerHTML = `
     <div class="info-section">
@@ -406,6 +363,43 @@ function openSidebar(factory) {
   mapDiv.classList.add('sidebar-open');
 }
 
+function openLocationSidebar(location) {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarContent = document.getElementById('sidebar-content');
+  const sidebarTitle = document.getElementById('sidebar-title');
+  const mapDiv = document.getElementById('map');
+  
+  sidebarTitle.textContent = 'Location Details';
+  
+  sidebarContent.innerHTML = `
+    <div class="info-section">
+      <div class="info-label">Location Name</div>
+      <div class="info-value">
+        <span class="factory-number">${location.code}</span>
+        ${location.name}
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Country/Region</div>
+      <div class="info-value">${location.country}</div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Coordinates</div>
+      <div class="info-value">${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}</div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Category</div>
+      <div class="info-value">${location.category}</div>
+    </div>
+  `;
+  
+  sidebar.classList.add('open');
+  mapDiv.classList.add('sidebar-open');
+}
+
 function closeSidebar() {
   const sidebar = document.getElementById('sidebar');
   const mapDiv = document.getElementById('map');
@@ -441,24 +435,10 @@ const locationIcon = () => L.divIcon({
     background:#0066cc;
     border:3px solid #0099ff;
     box-shadow:0 0 6px rgba(0,102,204,0.8), 0 0 12px rgba(0,0,0,0.6);
+    cursor: pointer;
   "></div>`,
   iconSize: [14,14],
   iconAnchor: [7,7]
-});
-
-/* ============================================================
-   CAPITAL MARKER — Small golden dots
-   ============================================================ */
-const capitalIcon = () => L.divIcon({
-  className: '',
-  html: `<div style="
-    width:8px;height:8px;border-radius:50%;
-    background:#d4af37;
-    border:1px solid #ffda44;
-    box-shadow:0 0 3px rgba(212,175,55,0.6);
-  "></div>`,
-  iconSize: [8,8],
-  iconAnchor: [4,4]
 });
 
 /* ============================================================
@@ -475,7 +455,7 @@ factories.forEach(f => {
   });
 
   m.on('click', () => {
-    openSidebar(f);
+    openFactorySidebar(f);
     m.openPopup();
   });
 
@@ -492,11 +472,21 @@ factories.forEach(f => {
 });
 
 /* ============================================================
-   ADD LOCATIONS TO MAP
+   ADD LOCATIONS TO MAP WITH HOVER TOOLTIPS
    ============================================================ */
 locations.forEach(loc => {
   const m = L.marker([loc.lat, loc.lng], { icon: locationIcon(), zIndexOffset: 1000 }).addTo(map);
 
+  /* Hover tooltip showing code and category */
+  m.bindTooltip(`<strong>${loc.code}</strong> - ${loc.category}`, {
+    permanent: false,
+    direction: 'top',
+    offset: [0, -15],
+    className: 'location-hover-tooltip',
+    opacity: 0.95
+  });
+
+  /* Permanent label with location name */
   m.bindTooltip(loc.name, {
     permanent: true,
     direction: 'right',
@@ -504,29 +494,19 @@ locations.forEach(loc => {
     className: 'location-label'
   });
 
-  m.bindPopup(`
-    <h4>${loc.name}</h4>
-    <p><strong>Country/Region:</strong> ${loc.country}</p>
-  `);
-});
-
-/* ============================================================
-   ADD COUNTRY CAPITALS TO MAP
-   ============================================================ */
-capitals.forEach(capital => {
-  const m = L.marker([capital.lat, capital.lng], { icon: capitalIcon(), zIndexOffset: 600 }).addTo(map);
-
-  m.bindTooltip(capital.name, {
-    permanent: true,
-    direction: 'top',
-    offset: [0, -8],
-    className: 'capital-label'
+  /* Click to open sidebar */
+  m.on('click', () => {
+    openLocationSidebar(loc);
   });
 
   m.bindPopup(`
-    <h4>${capital.name}</h4>
-    <p><strong>Capital of:</strong> ${capital.country}</p>
-  `);
+    <h4>${loc.name}</h4>
+    <p><strong>Code:</strong> ${loc.code}</p>
+    <p><strong>Category:</strong> ${loc.category}</p>
+    <p><strong>Country/Region:</strong> ${loc.country}</p>
+  `, {
+    maxWidth: 300
+  });
 });
 
 /* ============================================================
@@ -539,5 +519,8 @@ window.addEventListener('resize', () => {
 });
 
 </script>
+</head>
+<body>
+
 </body>
 </html>
