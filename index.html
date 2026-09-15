@@ -1,234 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Factory Map</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-<style>
-  :root{
-    --dark-blue: #0a1628;
-    --light-green: #c5e5c5;
-  }
-  *{ box-sizing: border-box; margin:0; padding:0; }
-  html, body{ height:100%; }
-  body{
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    background: var(--light-green);
-    color: #1a1a2e;
-    overflow: hidden;
-  }
-  #map{ 
-    height:100vh; 
-    width:100vw; 
-    transition: width 0.3s ease; 
-  }
-  #map.sidebar-open{ 
-    width: calc(100vw - 350px); 
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factory Map</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    html, body { 
+      height: 100%; 
+      width: 100%;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0ff;
+      overflow: hidden;
+    }
+    #map { 
+      height: 100vh; 
+      width: 100vw; 
+      background: #2a2a3e;
+      transition: width 0.3s ease; 
+    }
+    #map.sidebar-open { 
+      width: calc(100vw - 350px); 
+    }
 
-  /* ============================================================
-     SIDEBAR STYLES
-     ============================================================ */
-  #sidebar{
-    position: fixed;
-    right: -350px;
-    top: 0;
-    width: 350px;
-    height: 100vh;
-    background: linear-gradient(135deg, #0a1628 0%, #1a0f3d 100%);
-    border-left: 3px solid #DA70D6;
-    color: #e0e0ff;
-    overflow-y: auto;
-    z-index: 2000;
-    transition: right 0.3s ease;
-    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.8);
-  }
+    /* SIDEBAR STYLES */
+    #sidebar {
+      position: fixed;
+      right: -350px;
+      top: 0;
+      width: 350px;
+      height: 100vh;
+      background: linear-gradient(135deg, #0a1628 0%, #1a0f3d 100%);
+      border-left: 3px solid #DA70D6;
+      color: #e0e0ff;
+      overflow-y: auto;
+      z-index: 2000;
+      transition: right 0.3s ease;
+      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.8);
+    }
+    #sidebar.open {
+      right: 0;
+    }
+    #sidebar-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #DA70D6;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px;
+      transition: color 0.2s;
+    }
+    #sidebar-close:hover {
+      color: #00D9FF;
+    }
+    .sidebar-header {
+      padding: 20px 20px 10px;
+      border-bottom: 2px solid #DA70D6;
+      margin-bottom: 20px;
+    }
+    .sidebar-header h2 {
+      color: #DA70D6;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+    .sidebar-content {
+      padding: 0 20px 20px 20px;
+    }
+    .info-section {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #3a3a4a;
+    }
+    .info-section:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      font-size: 11px;
+      color: #7a7aff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+    .info-value {
+      font-size: 14px;
+      color: #e0e0ff;
+      margin-bottom: 10px;
+      word-wrap: break-word;
+    }
+    .factory-number {
+      display: inline-block;
+      background: #DA70D6;
+      color: #0a1628;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 12px;
+      margin-right: 8px;
+    }
 
-  #sidebar.open{
-    right: 0;
-  }
+    /* MAP POPUP STYLES */
+    .leaflet-popup-content-wrapper {
+      border-radius: 4px;
+      background: #1a1a2e;
+      border: 3px solid #DA70D6;
+      box-shadow: 0 0 20px rgba(218, 112, 214, 0.5);
+    }
+    .leaflet-popup-content-wrapper h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #DA70D6;
+    }
+    .leaflet-popup-content-wrapper p {
+      font-size: 13px;
+      margin: 5px 0;
+      color: #b0b0e0;
+    }
+    .leaflet-popup-close-button {
+      color: #DA70D6;
+      font-size: 20px;
+      font-weight: bold;
+    }
 
-  #sidebar-close{
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: #DA70D6;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.2s;
-  }
+    /* TOOLTIP STYLES */
+    .factory-city-label {
+      background: rgba(139, 90, 60, 0.95) !important;
+      border: 2px solid #ffb347 !important;
+      border-radius: 4px !important;
+      padding: 4px 8px !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      color: #fff !important;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+      white-space: nowrap !important;
+    }
+    .location-label {
+      background: rgba(0, 102, 204, 0.95) !important;
+      border: 2px solid #0099ff !important;
+      border-radius: 4px !important;
+      padding: 4px 8px !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      color: #fff !important;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+      white-space: nowrap !important;
+    }
+    .country-label {
+      background: rgba(26, 58, 74, 0.95) !important;
+      border: 2px solid #DA70D6 !important;
+      border-radius: 4px !important;
+      padding: 6px 10px !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      color: #DA70D6 !important;
+      text-shadow: none !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+      white-space: nowrap !important;
+    }
+    .hover-tooltip {
+      background: #1a1a2e !important;
+      border: 2px solid #DA70D6 !important;
+      border-radius: 4px !important;
+      padding: 8px 10px !important;
+      color: #e0e0ff !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      box-shadow: 0 2px 10px rgba(218, 112, 214, 0.6) !important;
+      max-width: 280px !important;
+    }
+    .hover-tooltip strong {
+      color: #DA70D6;
+    }
+    .leaflet-attribution-flag, .leaflet-attribution { 
+      display: none !important; 
+    }
 
-  #sidebar-close:hover{
-    color: #00D9FF;
-  }
-
-  .sidebar-header{
-    padding: 20px 20px 10px;
-    border-bottom: 2px solid #DA70D6;
-    margin-bottom: 20px;
-  }
-
-  .sidebar-header h2{
-    color: #DA70D6;
-    font-size: 18px;
-    margin-bottom: 5px;
-  }
-
-  .sidebar-content{
-    padding: 0 20px 20px 20px;
-  }
-
-  .info-section{
-    margin-bottom: 25px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #3a3a4a;
-  }
-
-  .info-section:last-child{
-    border-bottom: none;
-  }
-
-  .info-label{
-    font-size: 11px;
-    color: #7a7aff;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 5px;
-    font-weight: 700;
-  }
-
-  .info-value{
-    font-size: 14px;
-    color: #e0e0ff;
-    margin-bottom: 10px;
-    word-wrap: break-word;
-  }
-
-  .factory-number{
-    display: inline-block;
-    background: #DA70D6;
-    color: #0a1628;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-weight: 700;
-    font-size: 12px;
-    margin-right: 8px;
-  }
-
-  /* ============================================================
-     MAP POPUP STYLES
-     ============================================================ */
-  .leaflet-popup-content-wrapper{
-    border-radius: 4px;
-    background: #1a1a2e;
-    border: 3px solid #DA70D6;
-    box-shadow: 0 0 20px rgba(218, 112, 214, 0.5);
-  }
-
-  .leaflet-popup-content-wrapper h4{
-    font-size:15px;
-    font-weight:700;
-    margin-bottom:4px;
-    color: #DA70D6;
-  }
-
-  .leaflet-popup-content-wrapper p{
-    font-size:13px;
-    margin: 5px 0;
-    color: #b0b0e0;
-  }
-
-  .leaflet-popup-close-button{
-    color: #DA70D6;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  /* ============================================================
-     TOOLTIP STYLES
-     ============================================================ */
-  .factory-city-label{
-    background: rgba(139, 90, 60, 0.95);
-    border: 2px solid #ffb347;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-    white-space: nowrap;
-  }
-
-  .factory-city-label::before{
-    display:none;
-  }
-
-  .location-label{
-    background: rgba(0, 102, 204, 0.95);
-    border: 2px solid #0099ff;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-    white-space: nowrap;
-  }
-
-  .location-label::before{
-    display:none;
-  }
-
-  .country-label{
-    background: rgba(26, 58, 74, 0.95);
-    border: 2px solid #DA70D6;
-    border-radius: 4px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #DA70D6;
-    text-shadow: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-    white-space: nowrap;
-  }
-
-  .country-label::before{
-    display:none;
-  }
-
-  /* ============================================================
-     HOVER TOOLTIP
-     ============================================================ */
-  .hover-tooltip{
-    background: #1a1a2e !important;
-    border: 2px solid #DA70D6 !important;
-    border-radius: 4px !important;
-    padding: 8px 10px !important;
-    color: #e0e0ff !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 2px 10px rgba(218, 112, 214, 0.6) !important;
-    max-width: 280px !important;
-  }
-
-  .hover-tooltip strong{
-    color: #DA70D6;
-  }
-
-  .leaflet-attribution-flag, .leaflet-attribution { display:none; }
-
-  /* Custom map tiles filter */
-  .light-map-tiles {
-    filter: brightness(1.2) saturate(0.4) hue-rotate(80deg);
-    opacity: 0.15 !important;
-  }
-</style>
+    /* Light map tiles */
+    .light-map-tiles {
+      filter: brightness(1.2) saturate(0.4) hue-rotate(80deg) !important;
+      opacity: 0.15 !important;
+    }
+  </style>
 </head>
 <body>
 
@@ -245,9 +211,28 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="data.js"></script>
-
 <script>
+/* ============================================================
+   SAMPLE DATA (Embedded)
+   ============================================================ */
+const factories = [
+  { number: 1, name: 'Rotterdam Factory', city: 'Rotterdam', country: 'Netherlands', lat: 51.9225, lng: 4.4792, director: 'Jan Verkerk', staff: 450, products: ['Industrial Equipment', 'Machinery Parts'] },
+  { number: 2, name: 'Dordrecht Production', city: 'Dordrecht', country: 'Netherlands', lat: 51.8113, lng: 4.6734, director: 'Maria Hendrix', staff: 380, products: ['Textile Materials', 'Fabrics'] },
+  { number: 3, name: 'Singapore Hub', city: 'Singapore', country: 'Singapore', lat: 1.3521, lng: 103.8198, director: 'Chen Wei', staff: 520, products: ['Electronics', 'Semiconductors'] },
+  { number: 4, name: 'Ho Chi Minh Operations', city: 'Ho Chi Minh City', country: 'Vietnam', lat: 10.8231, lng: 106.6297, director: 'Nguyen Thanh', staff: 600, products: ['Apparel', 'Footwear'] },
+  { number: 5, name: 'Qingdao Manufacturing', city: 'Qingdao', country: 'China', lat: 36.0671, lng: 120.3826, director: 'Wang Li', staff: 750, products: ['Steel Products', 'Metal Alloys'] },
+  { number: 6, name: 'London Distribution', city: 'London', country: 'United Kingdom', lat: 51.5074, lng: -0.1278, director: 'James Thompson', staff: 290, products: ['Logistics Services', 'Warehousing'] },
+  { number: 7, name: 'Manchester Tech', city: 'Manchester', country: 'United Kingdom', lat: 53.4808, lng: -2.2426, director: 'Sarah Wilson', staff: 410, products: ['Software Solutions', 'IT Services'] },
+  { number: 8, name: 'Birmingham Assembly', city: 'Birmingham', country: 'United Kingdom', lat: 52.5086, lng: -1.8755, director: 'David Brown', staff: 320, products: ['Assembly Components', 'Automotive Parts'] },
+  { number: 9, name: 'Glasgow Distribution', city: 'Glasgow', country: 'United Kingdom', lat: 55.8642, lng: -4.2518, director: 'Robert MacLeod', staff: 250, products: ['Distribution Hub', 'Supply Chain'] },
+  { number: 10, name: 'Berryville Research', city: 'Berryville', country: 'United States', lat: 39.2414, lng: -77.9554, director: 'Dr. Michael Johnson', staff: 180, products: ['Research & Development', 'Innovation Lab'] },
+  { number: 11, name: 'Ahmedabad Textiles', city: 'Ahmedabad', country: 'India', lat: 23.0225, lng: 72.5714, director: 'Raj Patel', staff: 490, products: ['Textile Manufacturing', 'Cotton Fabrics'] }
+];
+
+const locations = [
+  { code: 'TMEQ', name: 'Marine Infrastructure Products', category: 'Marine Infra Products', country: 'Global', lat: 0, lng: 0 }
+];
+
 /* ============================================================
    MAP SETUP
    ============================================================ */
@@ -255,12 +240,13 @@ const map = L.map('map', {
   zoomControl: true,
   worldCopyJump: false,
   minZoom: 2,
+  maxZoom: 19,
   maxBounds: [[-85, -180], [85, 180]],
   maxBoundsViscosity: 1.0
 }).setView([25, 40], 2);
 
 /* ============================================================
-   VERY TRANSPARENT BACKGROUND LAYER
+   TILE LAYER
    ============================================================ */
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '',
@@ -288,7 +274,6 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
       },
       onEachFeature: function(feature, layer) {
         const countryName = feature.properties.ADMIN || 'Unknown';
-        
         layer.on('mouseover', function() {
           this.setStyle({
             color: '#DA70D6',
@@ -298,7 +283,6 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
             fillOpacity: 0.4
           });
           this.bringToFront();
-          
           this.bindTooltip(countryName, {
             permanent: false,
             direction: 'center',
@@ -306,7 +290,6 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
             offset: [0, 0]
           }).openTooltip();
         });
-        
         layer.on('mouseout', function() {
           this.setStyle({
             color: '#1a4d6d',
@@ -320,7 +303,7 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
       }
     }).addTo(map);
   })
-  .catch(err => console.log('Error loading borders:', err));
+  .catch(err => console.error('Error loading borders:', err));
 
 /* ============================================================
    SIDEBAR FUNCTIONS
@@ -332,7 +315,6 @@ function openFactorySidebar(factory) {
   const mapDiv = document.getElementById('map');
   
   sidebarTitle.textContent = 'Factory Details';
-  
   sidebarContent.innerHTML = `
     <div class="info-section">
       <div class="info-label">Factory Number</div>
@@ -341,35 +323,29 @@ function openFactorySidebar(factory) {
         ${factory.name}
       </div>
     </div>
-
     <div class="info-section">
       <div class="info-label">Location</div>
       <div class="info-value">${factory.city}</div>
       <div class="info-label">Country</div>
       <div class="info-value">${factory.country}</div>
     </div>
-
     <div class="info-section">
       <div class="info-label">Coordinates</div>
       <div class="info-value">${factory.lat.toFixed(4)}, ${factory.lng.toFixed(4)}</div>
     </div>
-
     <div class="info-section">
       <div class="info-label">Director</div>
       <div class="info-value">${factory.director}</div>
     </div>
-
     <div class="info-section">
       <div class="info-label">Staff Count</div>
       <div class="info-value">${factory.staff} employees</div>
     </div>
-
     <div class="info-section">
       <div class="info-label">Main Products</div>
       <div class="info-value">${factory.products.join(', ')}</div>
     </div>
   `;
-  
   sidebar.classList.add('open');
   mapDiv.classList.add('sidebar-open');
 }
@@ -395,8 +371,8 @@ const factoryIcon = () => L.divIcon({
     box-shadow:0 0 6px rgba(139,90,60,0.8), 0 0 12px rgba(0,0,0,0.6);
     cursor: pointer;
   "></div>`,
-  iconSize: [14,14],
-  iconAnchor: [7,7]
+  iconSize: [14, 14],
+  iconAnchor: [7, 7]
 });
 
 /* ============================================================
@@ -411,8 +387,8 @@ const locationIcon = () => L.divIcon({
     box-shadow:0 0 6px rgba(0,102,204,0.8), 0 0 12px rgba(0,0,0,0.6);
     cursor: pointer;
   "></div>`,
-  iconSize: [14,14],
-  iconAnchor: [7,7]
+  iconSize: [14, 14],
+  iconAnchor: [7, 7]
 });
 
 /* ============================================================
@@ -421,7 +397,6 @@ const locationIcon = () => L.divIcon({
 factories.forEach(f => {
   const m = L.marker([f.lat, f.lng], { icon: factoryIcon(), zIndexOffset: 1000 }).addTo(map);
 
-  /* Always visible city name label */
   m.bindTooltip(f.city, {
     permanent: true,
     direction: 'right',
@@ -429,8 +404,7 @@ factories.forEach(f => {
     className: 'factory-city-label'
   });
 
-  /* Hover tooltip - show factory info */
-  const hoverContent = `<strong>${f.name}</strong><br/>Director: ${f.director}<br/>Staff: ${f.staff} employees<br/>Products: ${f.products.join(', ')}`;\n  
+  const hoverContent = `<strong>${f.name}</strong><br/>Director: ${f.director}<br/>Staff: ${f.staff} employees<br/>Products: ${f.products.join(', ')}`;
   m.on('mouseover', function() {
     this.bindTooltip(hoverContent, {
       permanent: false,
@@ -445,28 +419,7 @@ factories.forEach(f => {
     this.closeTooltip();
   });
 
-  /* Also hover over city name */
-  const tooltipElement = m.getTooltip();
-  if (tooltipElement) {
-    L.DomEvent.on(tooltipElement, 'mouseover', function() {
-      m.bindTooltip(hoverContent, {
-        permanent: false,
-        direction: 'top',
-        offset: [0, -15],
-        className: 'hover-tooltip',
-        opacity: 1
-      }).openTooltip();
-    });
-
-    L.DomEvent.on(tooltipElement, 'mouseout', function() {
-      m.closeTooltip();
-    });
-  }
-
-  /* Click on dot or city name to open sidebar */
-  m.on('click', () => {
-    openFactorySidebar(f);
-  });
+  m.on('click', () => openFactorySidebar(f));
 
   m.bindPopup(`
     <div style="font-size:11px;color:#7a7aff;text-transform:uppercase;letter-spacing:0.03em;">Factory ${f.number}</div>
@@ -474,49 +427,7 @@ factories.forEach(f => {
     <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Director:</strong> ${f.director}</p>
     <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Staff:</strong> ${f.staff} employees</p>
     <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Products:</strong> ${f.products.join(', ')}</p>
-  `, {
-    maxWidth: 300
-  });
-});
-
-/* ============================================================
-   ADD LOCATIONS TO MAP
-   ============================================================ */
-locations.forEach(loc => {
-  const m = L.marker([loc.lat, loc.lng], { icon: locationIcon(), zIndexOffset: 1000 }).addTo(map);
-
-  /* Always visible location name label */
-  m.bindTooltip(loc.name, {
-    permanent: true,
-    direction: 'right',
-    offset: [12, 0],
-    className: 'location-label'
-  });
-
-  /* Hover tooltip - show code + category */
-  const hoverContent = `<strong>${loc.code}</strong><br/>${loc.category}`;\n  
-  m.on('mouseover', function() {
-    this.bindTooltip(hoverContent, {
-      permanent: false,
-      direction: 'top',
-      offset: [0, -15],
-      className: 'hover-tooltip',
-      opacity: 1
-    }).openTooltip();
-  });
-
-  m.on('mouseout', function() {
-    this.closeTooltip();
-  });
-
-  m.bindPopup(`
-    <h4 style="font-size:15px;font-weight:700;margin:4px 0;color:#DA70D6;">${loc.name}</h4>
-    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Code:</strong> ${loc.code}</p>
-    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Category:</strong> ${loc.category}</p>
-    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Country/Region:</strong> ${loc.country}</p>
-  `, {
-    maxWidth: 300
-  });
+  `, { maxWidth: 300 });
 });
 
 /* ============================================================
