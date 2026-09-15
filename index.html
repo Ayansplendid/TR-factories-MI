@@ -3,562 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Factory Network Map</title>
+<title>Factory Map</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --steel: #1C1F22;
-    --steel-light: #2A2E33;
     --concrete: #F5F3EE;
-    --concrete-dim: #E7E3DA;
     --amber: #D98E2B;
     --teal: #3E5C6B;
     --grey: #8A8F94;
     --line: #D9D4C8;
-    --good: #4C7A52;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
   html, body{ height:100%; }
   body{
-    font-family: 'Inter', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     background: var(--concrete);
     color: var(--steel);
     overflow: hidden;
   }
-  .app{
-    display:flex;
-    height:100vh;
-    width:100vw;
-  }
-
-  /* SIDEBAR */
-  .sidebar{
-    width: 360px;
-    min-width: 360px;
-    background: var(--steel);
-    color: var(--concrete);
-    display:flex;
-    flex-direction:column;
-    height:100%;
-    z-index: 20;
-  }
-  .brand{
-    padding: 22px 22px 16px 22px;
-    border-bottom: 1px solid rgba(245,243,238,0.12);
-  }
-  .brand .eyebrow{
-    font-family:'Oswald', sans-serif;
-    font-size:12px;
-    letter-spacing:0.04em;
-    color: var(--amber);
-    font-weight:500;
-  }
-  .brand h1{
-    font-family:'Oswald', sans-serif;
-    font-weight:600;
-    font-size: 26px;
-    line-height:1.15;
-    margin-top:4px;
-  }
-  .brand p{
-    font-size:13px;
-    color: var(--grey);
-    margin-top:6px;
-    line-height:1.5;
-  }
-
-  .search{
-    padding: 14px 22px;
-    border-bottom: 1px solid rgba(245,243,238,0.12);
-  }
-  .search input{
-    width:100%;
-    background: var(--steel-light);
-    border: 1px solid rgba(245,243,238,0.15);
-    color: var(--concrete);
-    padding: 9px 12px;
-    font-family:'Inter', sans-serif;
-    font-size: 13px;
-    border-radius: 3px;
-  }
-  .search input::placeholder{ color: var(--grey); }
-  .search input:focus{ outline:none; border-color: var(--amber); }
-
-  .filters{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    padding: 12px 22px;
-    border-bottom: 1px solid rgba(245,243,238,0.12);
-  }
-  .chip{
-    font-family:'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing:0.03em;
-    padding: 5px 10px;
-    border: 1px solid rgba(245,243,238,0.25);
-    color: var(--grey);
-    border-radius: 2px;
-    cursor:pointer;
-    user-select:none;
-    transition: all 0.15s ease;
-  }
-  .chip:hover{ border-color: var(--amber); color: var(--concrete); }
-  .chip.active{
-    background: var(--amber);
-    border-color: var(--amber);
-    color: var(--steel);
-    font-weight:600;
-  }
-
-  .list{
-    flex:1;
-    overflow-y:auto;
-    padding: 6px 0 20px 0;
-  }
-  .list::-webkit-scrollbar{ width:6px; }
-  .list::-webkit-scrollbar-thumb{ background: rgba(245,243,238,0.2); border-radius:3px; }
-
-  .factory-row{
-    padding: 14px 22px;
-    border-bottom: 1px solid rgba(245,243,238,0.08);
-    cursor:pointer;
-    transition: background 0.15s ease;
-    position:relative;
-  }
-  .factory-row:hover{ background: var(--steel-light); }
-  .factory-row.selected{ background: var(--steel-light); }
-  .factory-row.selected::before{
-    content:"";
-    position:absolute;
-    left:0; top:0; bottom:0;
-    width:3px;
-    background: var(--amber);
-  }
-  .factory-row .code{
-    font-family:'Oswald', sans-serif;
-    font-size: 11px;
-    color: var(--amber);
-    letter-spacing: 0.04em;
-  }
-  .factory-row h3{
-    font-family:'Oswald', sans-serif;
-    font-weight:500;
-    font-size: 16px;
-    margin-top: 2px;
-  }
-  .factory-row .meta{
-    font-size: 12px;
-    color: var(--grey);
-    margin-top: 4px;
-    display:flex;
-    gap:10px;
-  }
-
-  /* MAP */
-  .map-wrap{
-    flex:1;
-    position:relative;
-    height:100%;
-  }
-  #map{ height:100%; width:100%; }
+  #map{ height:100vh; width:100vw; }
 
   .leaflet-popup-content-wrapper{
-    border-radius: 3px;
-    font-family:'Inter', sans-serif;
+    border-radius: 4px;
   }
   .leaflet-popup-content-wrapper h4{
-    font-family:'Oswald', sans-serif;
-    font-size:14px;
-    margin-bottom:2px;
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:4px;
   }
-
-  /* DETAIL PANEL */
-  .detail{
-    position:absolute;
-    top:0;
-    right:0;
-    width: 380px;
-    height:100%;
-    background: var(--concrete);
-    border-left: 1px solid var(--line);
-    box-shadow: -6px 0 18px rgba(0,0,0,0.08);
-    transform: translateX(100%);
-    transition: transform 0.25s ease;
-    z-index: 30;
-    display:flex;
-    flex-direction:column;
-  }
-  .detail.open{ transform: translateX(0); }
-
-  .detail-header{
-    padding: 22px;
-    border-bottom: 1px solid var(--line);
-    position:relative;
-  }
-  .detail-close{
-    position:absolute;
-    top: 18px; right: 18px;
-    width: 28px; height: 28px;
-    border: 1px solid var(--line);
-    background: none;
-    border-radius: 2px;
-    cursor:pointer;
-    font-size: 16px;
-    color: var(--grey);
-    line-height:1;
-  }
-  .detail-close:hover{ border-color: var(--steel); color: var(--steel); }
-
-  .detail-header .code{
-    font-family:'Oswald', sans-serif;
-    font-size:12px;
-    color: var(--teal);
-    letter-spacing:0.04em;
-    font-weight:500;
-  }
-  .detail-header h2{
-    font-family:'Oswald', sans-serif;
-    font-weight:600;
-    font-size: 24px;
-    margin-top:4px;
-    padding-right: 30px;
-  }
-  .detail-header .loc{
+  .leaflet-popup-content-wrapper p{
     font-size:13px;
+    margin: 2px 0;
+    color: #444;
+  }
+  .leaflet-popup-content-wrapper .label{
+    font-size:11px;
     color: var(--grey);
-    margin-top:6px;
-  }
-
-  .detail-body{
-    padding: 20px 22px;
-    overflow-y:auto;
-    flex:1;
-  }
-  .stat-grid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 22px;
-  }
-  .stat{
-    border: 1px solid var(--line);
-    padding: 12px;
-    border-radius: 3px;
-    background: white;
-  }
-  .stat .label{
-    font-family:'Oswald', sans-serif;
-    font-size: 11px;
-    color: var(--grey);
-    letter-spacing:0.03em;
-  }
-  .stat .value{
-    font-family:'Oswald', sans-serif;
-    font-size: 18px;
-    font-weight:600;
-    margin-top:3px;
-    color: var(--steel);
-  }
-
-  .section-label{
-    font-family:'Oswald', sans-serif;
-    font-size: 12px;
-    color: var(--teal);
-    letter-spacing:0.03em;
-    font-weight:500;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--line);
-  }
-  .director-card{
-    display:flex;
-    align-items:center;
-    gap: 12px;
-    margin-bottom: 22px;
-  }
-  .director-avatar{
-    width: 44px; height:44px;
-    border-radius: 50%;
-    background: var(--teal);
-    color: white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:'Oswald', sans-serif;
-    font-weight:600;
-    font-size: 16px;
-    flex-shrink:0;
-  }
-  .director-info .name{
-    font-weight:600;
-    font-size:14px;
-  }
-  .director-info .title{
-    font-size:12px;
-    color: var(--grey);
-  }
-
-  .products{
-    display:flex;
-    flex-wrap:wrap;
-    gap: 6px;
-    margin-bottom: 22px;
-  }
-  .product-tag{
-    font-size:12px;
-    padding: 5px 10px;
-    background: var(--concrete-dim);
-    border-radius: 2px;
-    color: var(--steel);
-  }
-
-  .notes{
-    font-size: 13px;
-    line-height:1.6;
-    color: #4A4E52;
-  }
-
-  .status-dot{
-    display:inline-block;
-    width:7px; height:7px;
-    border-radius:50%;
-    background: var(--good);
-    margin-right:6px;
-  }
-
-  /* Mobile */
-  @media (max-width: 720px){
-    .sidebar{ position:absolute; z-index:25; height:100%; box-shadow: 4px 0 20px rgba(0,0,0,0.2); }
-    .detail{ width:100%; }
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <div class="sidebar">
-    <div class="brand">
-      <div class="eyebrow">SITE 001&ndash;006</div>
-      <h1>Factory Network</h1>
-      <p>Live overview of manufacturing sites, output and site leadership.</p>
-    </div>
-    <div class="search">
-      <input type="text" id="searchInput" placeholder="Search by name, city or product...">
-    </div>
-    <div class="filters" id="filterChips"></div>
-    <div class="list" id="factoryList"></div>
-  </div>
-
-  <div class="map-wrap">
-    <div id="map"></div>
-
-    <div class="detail" id="detailPanel">
-      <div class="detail-header">
-        <button class="detail-close" id="closeDetail">&times;</button>
-        <div class="code" id="dCode">SITE</div>
-        <h2 id="dName">Factory name</h2>
-        <div class="loc" id="dLoc">City, Country</div>
-      </div>
-      <div class="detail-body">
-        <div class="stat-grid">
-          <div class="stat">
-            <div class="label">FLOOR SIZE</div>
-            <div class="value" id="dSize">&mdash;</div>
-          </div>
-          <div class="stat">
-            <div class="label">WORKFORCE</div>
-            <div class="value" id="dWorkforce">&mdash;</div>
-          </div>
-          <div class="stat">
-            <div class="label">STATUS</div>
-            <div class="value" id="dStatus"><span class="status-dot"></span>Active</div>
-          </div>
-          <div class="stat">
-            <div class="label">OPENED</div>
-            <div class="value" id="dOpened">&mdash;</div>
-          </div>
-        </div>
-
-        <div class="section-label">Site director</div>
-        <div class="director-card">
-          <div class="director-avatar" id="dInitials">--</div>
-          <div class="director-info">
-            <div class="name" id="dDirector">&mdash;</div>
-            <div class="title">Plant Director</div>
-          </div>
-        </div>
-
-        <div class="section-label">Products manufactured</div>
-        <div class="products" id="dProducts"></div>
-
-        <div class="section-label">Notes</div>
-        <p class="notes" id="dNotes">&mdash;</p>
-      </div>
-    </div>
-  </div>
-</div>
+<div id="map"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* ============================================================
    FACTORY DATA
-   Replace/extend this array with your real factories.
-   lat/lng required for map placement.
+   Edit lat/lng, director, products, size here as needed.
    ============================================================ */
 const factories = [
-  { id: "site-001", number: 1, name: "Factory 1", city: "TBD", country: "TBD", lat: 40.7128,  lng: -74.0060,  director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-002", number: 2, name: "Factory 2", city: "TBD", country: "TBD", lat: -23.5505, lng: -46.6333,  director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-003", number: 3, name: "Factory 3", city: "TBD", country: "TBD", lat: 51.5072,  lng: -0.1276,   director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-004", number: 4, name: "Factory 4", city: "TBD", country: "TBD", lat: 30.0444,  lng: 31.2357,   director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-005", number: 5, name: "Factory 5", city: "TBD", country: "TBD", lat: 28.6139,  lng: 77.2090,   director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-006", number: 6, name: "Factory 6", city: "TBD", country: "TBD", lat: 31.2304,  lng: 121.4737,  director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-007", number: 7, name: "Factory 7", city: "TBD", country: "TBD", lat: 35.6762,  lng: 139.6503,  director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-008", number: 8, name: "Factory 8", city: "TBD", country: "TBD", lat: -33.8688, lng: 151.2093,  director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-009", number: 9, name: "Factory 9", city: "TBD", country: "TBD", lat: 6.5244,   lng: 3.3792,    director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" },
-  { id: "site-010", number: 10, name: "Factory 10", city: "TBD", country: "TBD", lat: 55.7558, lng: 37.6173,  director: "TBD", size: "TBD", workforce: "TBD", opened: "TBD", status: "Active", products: [], notes: "" }
+  { number: 1, name: "Factory 1", city: "Ho Chi Minh City", country: "Vietnam", lat: 10.8231, lng: 106.6297, director: "TBD", size: "TBD", products: [] },
+  { number: 2, name: "Factory 2", city: "Qingdao", country: "China", lat: 36.0671, lng: 120.3826, director: "TBD", size: "TBD", products: [] },
+  { number: 3, name: "Factory 3", city: "London", country: "United Kingdom", lat: 51.5072, lng: -0.1276, director: "TBD", size: "TBD", products: [] },
+  { number: 4, name: "Factory 4", city: "Manchester", country: "United Kingdom", lat: 53.4808, lng: -2.2426, director: "TBD", size: "TBD", products: [] },
+  { number: 5, name: "Factory 5", city: "Birmingham", country: "United Kingdom", lat: 52.4862, lng: -1.8904, director: "TBD", size: "TBD", products: [] },
+  { number: 6, name: "Factory 6", city: "Glasgow", country: "United Kingdom", lat: 55.8642, lng: -4.2518, director: "TBD", size: "TBD", products: [] },
+  { number: 7, name: "Factory 7", city: "Berryville", country: "USA (VA)", lat: 39.1496, lng: -77.9880, director: "TBD", size: "TBD", products: [] },
+  { number: 8, name: "Factory 8", city: "Ahmedabad", country: "India", lat: 23.0225, lng: 72.5714, director: "TBD", size: "TBD", products: [] }
 ];
 
 /* ============================================================
-   MAP SETUP
+   MAP SETUP — no API key needed, OpenStreetMap tiles are free
    ============================================================ */
-const map = L.map('map', { zoomControl: true, worldCopyJump: true }).setView([20, 10], 2);
+const map = L.map('map', { zoomControl: true, worldCopyJump: true }).setView([25, 40], 2);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
   maxZoom: 19
 }).addTo(map);
 
-const markerIcon = (number, active) => L.divIcon({
+const markerIcon = (number) => L.divIcon({
   className: '',
   html: `<div style="
     width:28px;height:28px;border-radius:50%;
-    background:${active ? '#D98E2B' : '#3E5C6B'};
+    background:${'#3E5C6B'};
     border:2px solid white;
     box-shadow:0 1px 4px rgba(0,0,0,0.35);
     display:flex;align-items:center;justify-content:center;
-    font-family:'Oswald', sans-serif;font-weight:600;font-size:13px;color:white;
+    font-weight:700;font-size:13px;color:white;
   ">${number}</div>`,
   iconSize: [28,28],
   iconAnchor: [14,14]
 });
 
-const markers = {};
 factories.forEach(f => {
-  const m = L.marker([f.lat, f.lng], { icon: markerIcon(f.number, false) }).addTo(map);
-  m.bindPopup(`<h4>Factory ${f.number}</h4>Click for details`);
-  m.on('click', () => selectFactory(f.id));
-  markers[f.id] = m;
-});
-
-/* ============================================================
-   SIDEBAR LIST + FILTERS
-   ============================================================ */
-const listEl = document.getElementById('factoryList');
-const chipsEl = document.getElementById('filterChips');
-const searchInput = document.getElementById('searchInput');
-
-let activeStatusFilter = 'All';
-let selectedId = null;
-
-const statuses = ['All', ...new Set(factories.map(f => f.status))];
-statuses.forEach(s => {
-  const chip = document.createElement('div');
-  chip.className = 'chip' + (s === 'All' ? ' active' : '');
-  chip.textContent = s;
-  chip.addEventListener('click', () => {
-    activeStatusFilter = s;
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    renderList();
-  });
-  chipsEl.appendChild(chip);
-});
-
-function matchesSearch(f, term) {
-  if (!term) return true;
-  const hay = `Factory ${f.number} ${f.city} ${f.country} ${f.products.join(' ')}`.toLowerCase();
-  return hay.includes(term.toLowerCase());
-}
-
-function renderList() {
-  const term = searchInput.value.trim();
-  listEl.innerHTML = '';
-  factories
-    .filter(f => activeStatusFilter === 'All' || f.status === activeStatusFilter)
-    .filter(f => matchesSearch(f, term))
-    .forEach(f => {
-      const row = document.createElement('div');
-      row.className = 'factory-row' + (f.id === selectedId ? ' selected' : '');
-      row.innerHTML = `
-        <div class="code">SITE ${String(f.number).padStart(3,'0')}</div>
-        <h3>Factory ${f.number}</h3>
-        <div class="meta">
-          <span>Details pending</span>
-        </div>
-      `;
-      row.addEventListener('click', () => selectFactory(f.id, true));
-      listEl.appendChild(row);
-    });
-}
-renderList();
-searchInput.addEventListener('input', renderList);
-
-/* ============================================================
-   DETAIL PANEL
-   ============================================================ */
-const detailPanel = document.getElementById('detailPanel');
-
-function selectFactory(id, flyTo) {
-  const f = factories.find(x => x.id === id);
-  if (!f) return;
-
-  if (selectedId && markers[selectedId]) {
-    const prev = factories.find(x => x.id === selectedId);
-    markers[selectedId].setIcon(markerIcon(prev.number, false));
-  }
-  markers[id].setIcon(markerIcon(f.number, true));
-  selectedId = id;
-  renderList();
-
-  document.getElementById('dCode').textContent = `SITE ${String(f.number).padStart(3,'0')}`;
-  document.getElementById('dName').textContent = `Factory ${f.number}`;
-  document.getElementById('dLoc').textContent = 'Location pending';
-  document.getElementById('dSize').textContent = f.size;
-  document.getElementById('dWorkforce').textContent = f.workforce;
-  document.getElementById('dOpened').textContent = f.opened;
-  document.getElementById('dStatus').innerHTML = `<span class="status-dot" style="background:${f.status === 'Active' ? '#4C7A52' : '#D98E2B'}"></span>${f.status}`;
-  document.getElementById('dDirector').textContent = f.director;
-  document.getElementById('dInitials').textContent = f.director.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('dNotes').textContent = f.notes;
-
-  const prodWrap = document.getElementById('dProducts');
-  prodWrap.innerHTML = '';
-  f.products.forEach(p => {
-    const tag = document.createElement('span');
-    tag.className = 'product-tag';
-    tag.textContent = p;
-    prodWrap.appendChild(tag);
-  });
-
-  detailPanel.classList.add('open');
-
-  if (flyTo) {
-    map.flyTo([f.lat, f.lng], 7, { duration: 0.6 });
-    markers[id].openPopup();
-  }
-}
-
-document.getElementById('closeDetail').addEventListener('click', () => {
-  detailPanel.classList.remove('open');
-  if (selectedId && markers[selectedId]) {
-    const prev = factories.find(x => x.id === selectedId);
-    markers[selectedId].setIcon(markerIcon(prev.number, false));
-  }
-  selectedId = null;
-  renderList();
+  const m = L.marker([f.lat, f.lng], { icon: markerIcon(f.number) }).addTo(map);
+  m.bindPopup(`
+    <div class="label">Factory ${f.number}</div>
+    <h4>${f.city}, ${f.country}</h4>
+    <p><strong>Director:</strong> ${f.director}</p>
+    <p><strong>Size:</strong> ${f.size}</p>
+    <p><strong>Products:</strong> ${f.products.length ? f.products.join(', ') : 'TBD'}</p>
+  `);
 });
 </script>
 </body>
