@@ -15,7 +15,6 @@
     --line: #D9D4C8;
     --dark-blue: #0a1628;
     --violet: #1a0f3d;
-    --neon-violet: #DA70D6;
     --neon-blue: #00D9FF;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
@@ -26,8 +25,104 @@
     color: #e0e0ff;
     overflow: hidden;
   }
-  #map{ height:100vh; width:100vw; }
+  #map{ height:100vh; width:100vw; transition: width 0.3s ease; }
+  #map.sidebar-open{ width: calc(100vw - 350px); }
 
+  /* ============================================================
+     SIDEBAR STYLES
+     ============================================================ */
+  #sidebar{
+    position: fixed;
+    right: -350px;
+    top: 0;
+    width: 350px;
+    height: 100vh;
+    background: linear-gradient(135deg, #0a1628 0%, #1a0f3d 100%);
+    border-left: 3px solid #DA70D6;
+    color: #e0e0ff;
+    overflow-y: auto;
+    z-index: 2000;
+    transition: right 0.3s ease;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.8);
+  }
+
+  #sidebar.open{
+    right: 0;
+  }
+
+  #sidebar-close{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #DA70D6;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+  }
+
+  #sidebar-close:hover{
+    color: #00D9FF;
+  }
+
+  .sidebar-header{
+    padding: 20px 20px 10px;
+    border-bottom: 2px solid #DA70D6;
+    margin-bottom: 20px;
+  }
+
+  .sidebar-header h2{
+    color: #DA70D6;
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  .sidebar-content{
+    padding: 0 20px 20px 20px;
+  }
+
+  .info-section{
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #3a3a4a;
+  }
+
+  .info-section:last-child{
+    border-bottom: none;
+  }
+
+  .info-label{
+    font-size: 11px;
+    color: #7a7aff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+    font-weight: 700;
+  }
+
+  .info-value{
+    font-size: 14px;
+    color: #e0e0ff;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+  }
+
+  .factory-number{
+    display: inline-block;
+    background: #DA70D6;
+    color: #0a1628;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 12px;
+    margin-right: 8px;
+  }
+
+  /* ============================================================
+     MAP POPUP STYLES
+     ============================================================ */
   .leaflet-popup-content-wrapper{
     border-radius: 4px;
     background: #1a1a2e;
@@ -96,6 +191,21 @@
     display:none;
   }
 
+  .capital-label{
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    font-size: 10px;
+    font-weight: 600;
+    color: #d4af37;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 -1px 2px rgba(0,0,0,0.9);
+    z-index: 600;
+  }
+  .capital-label::before{
+    display:none;
+  }
+
   .leaflet-attribution-flag, .leaflet-attribution { display:none; }
 
   /* Hide all OSM tile labels, regions, villages, etc. */
@@ -110,6 +220,16 @@
 <body>
 
 <div id="map"></div>
+
+<div id="sidebar">
+  <button id="sidebar-close">&times;</button>
+  <div class="sidebar-header">
+    <h2>Factory Details</h2>
+  </div>
+  <div class="sidebar-content" id="sidebar-content">
+    <!-- Factory info will be inserted here -->
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -141,7 +261,7 @@ const locations = [
 ];
 
 /* ============================================================
-   MAJOR CITIES ONLY — Only 6 biggest cities shown
+   MAJOR CITIES — Grey dots
    ============================================================ */
 const majorCities = [
   { name: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503 },
@@ -153,7 +273,30 @@ const majorCities = [
 ];
 
 /* ============================================================
-   MAP SETUP — Dark Blue background with Dark Violet Neon borders
+   COUNTRY CAPITALS — Small dots for capitals
+   ============================================================ */
+const capitals = [
+  { name: "Beijing", country: "China", lat: 39.9042, lng: 116.4074 },
+  { name: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503 },
+  { name: "New Delhi", country: "India", lat: 28.7041, lng: 77.1025 },
+  { name: "Moscow", country: "Russia", lat: 55.7558, lng: 37.6173 },
+  { name: "Paris", country: "France", lat: 48.8566, lng: 2.3522 },
+  { name: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050 },
+  { name: "Madrid", country: "Spain", lat: 40.4168, lng: -3.7038 },
+  { name: "Rome", country: "Italy", lat: 41.9028, lng: 12.4964 },
+  { name: "Washington DC", country: "USA", lat: 38.9072, lng: -77.0369 },
+  { name: "Ottawa", country: "Canada", lat: 45.4215, lng: -75.6972 },
+  { name: "Mexico City", country: "Mexico", lat: 19.4326, lng: -99.1332 },
+  { name: "Brasília", country: "Brazil", lat: -15.7942, lng: -47.8822 },
+  { name: "Cairo", country: "Egypt", lat: 30.0444, lng: 31.2357 },
+  { name: "Canberra", country: "Australia", lat: -35.2809, lng: 149.1300 },
+  { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198 },
+  { name: "Bangkok", country: "Thailand", lat: 13.7563, lng: 100.5018 },
+  { name: "Hanoi", country: "Vietnam", lat: 21.0285, lng: 105.8542 }
+];
+
+/* ============================================================
+   MAP SETUP — Dark Blue background with Dark Blue borders
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -173,14 +316,14 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 /* ============================================================
-   FETCH WORLD BORDERS GEOJSON & ADD DARK VIOLET NEON BORDERS
+   FETCH WORLD BORDERS GEOJSON & ADD DARK BLUE BORDERS
    ============================================================ */
 fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(response => response.json())
   .then(data => {
     L.geoJSON(data, {
       style: {
-        color: '#DA70D6',           /* Dark Violet Neon border */
+        color: '#1a3a4a',           /* Dark blue border */
         weight: 3,
         opacity: 1.0,
         fillColor: '#0a1628',       /* Dark blue fill */
@@ -194,6 +337,64 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
   .catch(err => console.log('Error loading borders:', err));
 
 /* ============================================================
+   SIDEBAR FUNCTIONS
+   ============================================================ */
+function openSidebar(factory) {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarContent = document.getElementById('sidebar-content');
+  const mapDiv = document.getElementById('map');
+  
+  sidebarContent.innerHTML = `
+    <div class="info-section">
+      <div class="info-label">Factory Number</div>
+      <div class="info-value">
+        <span class="factory-number">F${factory.number}</span>
+        ${factory.name}
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Location</div>
+      <div class="info-value">${factory.city}</div>
+      <div class="info-label">Country</div>
+      <div class="info-value">${factory.country}</div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Coordinates</div>
+      <div class="info-value">${factory.lat.toFixed(4)}, ${factory.lng.toFixed(4)}</div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Director</div>
+      <div class="info-value">${factory.director || 'N/A'}</div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Size</div>
+      <div class="info-value">${factory.size || 'N/A'}</div>
+    </div>
+
+    <div class="info-section">
+      <div class="info-label">Products</div>
+      <div class="info-value">${factory.products.length ? factory.products.join(', ') : 'TBD'}</div>
+    </div>
+  `;
+  
+  sidebar.classList.add('open');
+  mapDiv.classList.add('sidebar-open');
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const mapDiv = document.getElementById('map');
+  sidebar.classList.remove('open');
+  mapDiv.classList.remove('sidebar-open');
+}
+
+document.getElementById('sidebar-close').addEventListener('click', closeSidebar);
+
+/* ============================================================
    FACTORY MARKER — Brown dots
    ============================================================ */
 const factoryIcon = () => L.divIcon({
@@ -203,6 +404,7 @@ const factoryIcon = () => L.divIcon({
     background:#8B5A3C;
     border:3px solid #ffb347;
     box-shadow:0 0 6px rgba(139,90,60,0.8), 0 0 12px rgba(0,0,0,0.6);
+    cursor: pointer;
   "></div>`,
   iconSize: [14,14],
   iconAnchor: [7,7]
@@ -224,7 +426,7 @@ const locationIcon = () => L.divIcon({
 });
 
 /* ============================================================
-   MAJOR CITY MARKER — Grey dots (subtle)
+   MAJOR CITY MARKER — Grey dots
    ============================================================ */
 const cityIcon = () => L.divIcon({
   className: '',
@@ -239,6 +441,21 @@ const cityIcon = () => L.divIcon({
 });
 
 /* ============================================================
+   CAPITAL MARKER — Small golden dots
+   ============================================================ */
+const capitalIcon = () => L.divIcon({
+  className: '',
+  html: `<div style="
+    width:8px;height:8px;border-radius:50%;
+    background:#d4af37;
+    border:1px solid #ffda44;
+    box-shadow:0 0 3px rgba(212,175,55,0.6);
+  "></div>`,
+  iconSize: [8,8],
+  iconAnchor: [4,4]
+});
+
+/* ============================================================
    ADD FACTORIES TO MAP
    ============================================================ */
 factories.forEach(f => {
@@ -249,6 +466,10 @@ factories.forEach(f => {
     direction: 'right',
     offset: [8, 0],
     className: 'factory-label'
+  });
+
+  m.on('click', () => {
+    openSidebar(f);
   });
 
   m.bindPopup(`
@@ -296,6 +517,34 @@ majorCities.forEach(city => {
     <h4>${city.name}</h4>
     <p><strong>Country:</strong> ${city.country}</p>
   `);
+});
+
+/* ============================================================
+   ADD COUNTRY CAPITALS TO MAP
+   ============================================================ */
+capitals.forEach(capital => {
+  const m = L.marker([capital.lat, capital.lng], { icon: capitalIcon(), zIndexOffset: 600 }).addTo(map);
+
+  m.bindTooltip(capital.name, {
+    permanent: true,
+    direction: 'top',
+    offset: [0, -8],
+    className: 'capital-label'
+  });
+
+  m.bindPopup(`
+    <h4>${capital.name}</h4>
+    <p><strong>Capital of:</strong> ${capital.country}</p>
+  `);
+});
+
+/* ============================================================
+   HANDLE WINDOW RESIZE FOR MAP
+   ============================================================ */
+window.addEventListener('resize', () => {
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 250);
 });
 
 </script>
