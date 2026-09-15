@@ -126,30 +126,19 @@ const map = L.map('map', {
 
 /* ============================================================
    DARK BLUE/VIOLET TILE LAYER with high contrast borders
+   Using free CartoDB Dark Matter tiles
    ============================================================ */
-L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_tonerBackground/{z}/{x}/{y}.png', {
-  attribution: '',
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CartoDB',
   maxZoom: 19,
   noWrap: true
 }).addTo(map);
 
-L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_tonerlabels/{z}/{x}/{y}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
   attribution: '',
   maxZoom: 19,
   noWrap: true
 }).addTo(map);
-
-/* Add dark overlay for violet effect */
-const overlayStyle = document.createElement('style');
-overlayStyle.innerHTML = `
-  .leaflet-tile-pane {
-    filter: invert(0.9) hue-rotate(200deg) brightness(0.6) contrast(1.2);
-  }
-  .leaflet-overlay-pane svg {
-    filter: invert(0.9) hue-rotate(200deg) brightness(0.6);
-  }
-`;
-document.head.appendChild(overlayStyle);
 
 /* ============================================================
    FACTORY MARKER — Brown dots
