@@ -16,13 +16,14 @@
     --dark-blue: #0a1628;
     --violet: #1a0f3d;
     --neon-blue: #00D9FF;
+    --light-green: #c5e5c5;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
   html, body{ height:100%; }
   body{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    background: var(--dark-blue);
-    color: #e0e0ff;
+    background: var(--light-green);
+    color: #1a1a2e;
     overflow: hidden;
   }
   #map{ height:100vh; width:100vw; transition: width 0.3s ease; }
@@ -126,17 +127,18 @@
   .leaflet-popup-content-wrapper{
     border-radius: 4px;
     background: #1a1a2e;
-    border: 2px solid #00d4ff;
+    border: 3px solid #DA70D6;
+    box-shadow: 0 0 20px rgba(218, 112, 214, 0.5);
   }
   .leaflet-popup-content-wrapper h4{
     font-size:15px;
     font-weight:700;
     margin-bottom:4px;
-    color: #00d4ff;
+    color: #DA70D6;
   }
   .leaflet-popup-content-wrapper p{
     font-size:13px;
-    margin: 2px 0;
+    margin: 5px 0;
     color: #b0b0e0;
   }
   .leaflet-popup-content-wrapper .label{
@@ -146,6 +148,12 @@
     letter-spacing: 0.03em;
   }
 
+  .leaflet-popup-close-button{
+    color: #DA70D6;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
   .factory-label{
     background: none;
     border: none;
@@ -153,8 +161,8 @@
     padding: 0;
     font-size: 12px;
     font-weight: 700;
-    color: #ffb347;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 -1px 3px rgba(0,0,0,0.9);
+    color: #8B5A3C;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 -1px 3px rgba(255,255,255,0.8);
     z-index: 1000;
   }
   .factory-label::before{
@@ -168,8 +176,8 @@
     padding: 0;
     font-size: 12px;
     font-weight: 700;
-    color: #00ffff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 -1px 3px rgba(0,0,0,0.9);
+    color: #0066cc;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 -1px 3px rgba(255,255,255,0.8);
     z-index: 1000;
   }
   .location-label::before{
@@ -183,9 +191,10 @@
     padding: 0;
     font-size: 11px;
     font-weight: 600;
-    color: #b0b0e0;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 -1px 2px rgba(0,0,0,0.9);
+    color: #666;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 -1px 2px rgba(255,255,255,0.9);
     z-index: 500;
+    display: none;
   }
   .city-label::before{
     display:none;
@@ -198,8 +207,8 @@
     padding: 0;
     font-size: 10px;
     font-weight: 600;
-    color: #d4af37;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 -1px 2px rgba(0,0,0,0.9);
+    color: #8B6914;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 -1px 2px rgba(255,255,255,0.9);
     z-index: 600;
   }
   .capital-label::before{
@@ -207,14 +216,6 @@
   }
 
   .leaflet-attribution-flag, .leaflet-attribution { display:none; }
-
-  /* Hide all OSM tile labels, regions, villages, etc. */
-  .leaflet-tile-pane {
-    filter: brightness(0.2) saturate(0.1) invert(1) hue-rotate(180deg) contrast(0.8);
-  }
-
-  /* Hide popup for tiles */
-  .leaflet-popup { display: none; }
 </style>
 </head>
 <body>
@@ -237,14 +238,14 @@
    FACTORY DATA — Brown dots
    ============================================================ */
 const factories = [
-  { number: 1, name: "Factory 1", city: "Ho Chi Minh City", country: "Vietnam", lat: 10.8231, lng: 106.6297, director: "TBD", size: "TBD", products: [] },
-  { number: 2, name: "Factory 2", city: "Qingdao", country: "China", lat: 36.0671, lng: 120.3826, director: "TBD", size: "TBD", products: [] },
-  { number: 3, name: "Factory 3", city: "London", country: "United Kingdom", lat: 51.5072, lng: -0.1276, director: "TBD", size: "TBD", products: [] },
-  { number: 4, name: "Factory 4", city: "Manchester", country: "United Kingdom", lat: 53.4808, lng: -2.2426, director: "TBD", size: "TBD", products: [] },
-  { number: 5, name: "Factory 5", city: "Birmingham", country: "United Kingdom", lat: 52.4862, lng: -1.8904, director: "TBD", size: "TBD", products: [] },
-  { number: 6, name: "Factory 6", city: "Glasgow", country: "United Kingdom", lat: 55.8642, lng: -4.2518, director: "TBD", size: "TBD", products: [] },
-  { number: 7, name: "Factory 7", city: "Berryville", country: "USA (VA)", lat: 39.1496, lng: -77.9880, director: "TBD", size: "TBD", products: [] },
-  { number: 8, name: "Factory 8", city: "Ahmedabad", country: "India", lat: 23.0225, lng: 72.5714, director: "TBD", size: "TBD", products: [] }
+  { number: 1, name: "Factory 1", city: "Ho Chi Minh City", country: "Vietnam", lat: 10.8231, lng: 106.6297, director: "Nguyen Van A", staff: 850, products: ["Electronics", "Components"] },
+  { number: 2, name: "Factory 2", city: "Qingdao", country: "China", lat: 36.0671, lng: 120.3826, director: "Li Wei", staff: 1200, products: ["Textiles", "Fabrics"] },
+  { number: 3, name: "Factory 3", city: "London", country: "United Kingdom", lat: 51.5072, lng: -0.1276, director: "James Smith", staff: 450, products: ["Machinery", "Parts"] },
+  { number: 4, name: "Factory 4", city: "Manchester", country: "United Kingdom", lat: 53.4808, lng: -2.2426, director: "Michael Brown", staff: 680, products: ["Chemicals", "Compounds"] },
+  { number: 5, name: "Factory 5", city: "Birmingham", country: "United Kingdom", lat: 52.4862, lng: -1.8904, director: "Sarah Johnson", staff: 520, products: ["Metal Works", "Castings"] },
+  { number: 6, name: "Factory 6", city: "Glasgow", country: "United Kingdom", lat: 55.8642, lng: -4.2518, director: "Robert Wilson", staff: 390, products: ["Electronics", "Circuits"] },
+  { number: 7, name: "Factory 7", city: "Berryville", country: "USA (VA)", lat: 39.1496, lng: -77.9880, director: "David Miller", staff: 560, products: ["Plastics", "Polymers"] },
+  { number: 8, name: "Factory 8", city: "Ahmedabad", country: "India", lat: 23.0225, lng: 72.5714, director: "Rajesh Patel", staff: 920, products: ["Pharmaceuticals", "Medicines"] }
 ];
 
 /* ============================================================
@@ -258,18 +259,6 @@ const locations = [
   { name: "Houston", country: "Texas, USA", lat: 29.7604, lng: -95.3698 },
   { name: "Dordrecht", country: "Netherlands", lat: 51.8161, lng: 4.6695 },
   { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198 }
-];
-
-/* ============================================================
-   MAJOR CITIES — Grey dots
-   ============================================================ */
-const majorCities = [
-  { name: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503 },
-  { name: "Delhi", country: "India", lat: 28.7041, lng: 77.1025 },
-  { name: "Shanghai", country: "China", lat: 31.2304, lng: 121.4737 },
-  { name: "São Paulo", country: "Brazil", lat: -23.5505, lng: -46.6333 },
-  { name: "Mexico City", country: "Mexico", lat: 19.4326, lng: -99.1332 },
-  { name: "Cairo", country: "Egypt", lat: 30.0444, lng: 31.2357 }
 ];
 
 /* ============================================================
@@ -290,13 +279,12 @@ const capitals = [
   { name: "Brasília", country: "Brazil", lat: -15.7942, lng: -47.8822 },
   { name: "Cairo", country: "Egypt", lat: 30.0444, lng: 31.2357 },
   { name: "Canberra", country: "Australia", lat: -35.2809, lng: 149.1300 },
-  { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198 },
   { name: "Bangkok", country: "Thailand", lat: 13.7563, lng: 100.5018 },
   { name: "Hanoi", country: "Vietnam", lat: 21.0285, lng: 105.8542 }
 ];
 
 /* ============================================================
-   MAP SETUP — Dark Blue background with Dark Blue borders
+   MAP SETUP — Light green background
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -307,13 +295,26 @@ const map = L.map('map', {
 }).setView([25, 40], 2);
 
 /* ============================================================
-   COMPLETELY MINIMAL BACKGROUND LAYER
+   LIGHT GREEN BACKGROUND LAYER
    ============================================================ */
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '',
   maxZoom: 19,
-  noWrap: true
+  noWrap: true,
+  className: 'light-map-tiles'
 }).addTo(map);
+
+/* Apply light green filter to tiles */
+const style = document.createElement('style');
+style.innerHTML = `
+  .light-map-tiles {
+    filter: brightness(1.3) saturate(0.6) hue-rotate(80deg);
+  }
+`;
+document.head.appendChild(style);
+
+/* Store GeoJSON layer for hover effects */
+let geoJSONLayer;
 
 /* ============================================================
    FETCH WORLD BORDERS GEOJSON & ADD DARK BLUE BORDERS
@@ -321,16 +322,36 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(response => response.json())
   .then(data => {
-    L.geoJSON(data, {
+    geoJSONLayer = L.geoJSON(data, {
       style: {
         color: '#1a3a4a',           /* Dark blue border */
-        weight: 3,
-        opacity: 1.0,
-        fillColor: '#0a1628',       /* Dark blue fill */
-        fillOpacity: 0.5
+        weight: 2,
+        opacity: 0.8,
+        fillColor: '#c5e5c5',       /* Light green fill */
+        fillOpacity: 0.4
       },
       onEachFeature: function(feature, layer) {
         layer.unbindPopup();
+        
+        /* Add hover effect */
+        layer.on('mouseover', function() {
+          this.setStyle({
+            color: '#0a1628',
+            weight: 4,
+            opacity: 1.0,
+            fillOpacity: 0.6
+          });
+          this.bringToFront();
+        });
+        
+        layer.on('mouseout', function() {
+          this.setStyle({
+            color: '#1a3a4a',
+            weight: 2,
+            opacity: 0.8,
+            fillOpacity: 0.4
+          });
+        });
       }
     }).addTo(map);
   })
@@ -367,17 +388,17 @@ function openSidebar(factory) {
 
     <div class="info-section">
       <div class="info-label">Director</div>
-      <div class="info-value">${factory.director || 'N/A'}</div>
+      <div class="info-value">${factory.director}</div>
     </div>
 
     <div class="info-section">
-      <div class="info-label">Size</div>
-      <div class="info-value">${factory.size || 'N/A'}</div>
+      <div class="info-label">Staff Count</div>
+      <div class="info-value">${factory.staff} employees</div>
     </div>
 
     <div class="info-section">
-      <div class="info-label">Products</div>
-      <div class="info-value">${factory.products.length ? factory.products.join(', ') : 'TBD'}</div>
+      <div class="info-label">Main Products</div>
+      <div class="info-value">${factory.products.join(', ')}</div>
     </div>
   `;
   
@@ -417,27 +438,12 @@ const locationIcon = () => L.divIcon({
   className: '',
   html: `<div style="
     width:14px;height:14px;border-radius:50%;
-    background:#00d4ff;
-    border:3px solid #00ffff;
-    box-shadow:0 0 6px rgba(0,212,255,0.8), 0 0 12px rgba(0,255,255,0.4);
+    background:#0066cc;
+    border:3px solid #0099ff;
+    box-shadow:0 0 6px rgba(0,102,204,0.8), 0 0 12px rgba(0,0,0,0.6);
   "></div>`,
   iconSize: [14,14],
   iconAnchor: [7,7]
-});
-
-/* ============================================================
-   MAJOR CITY MARKER — Grey dots
-   ============================================================ */
-const cityIcon = () => L.divIcon({
-  className: '',
-  html: `<div style="
-    width:10px;height:10px;border-radius:50%;
-    background:#606080;
-    border:2px solid #909090;
-    box-shadow:0 0 4px rgba(90,90,110,0.6);
-  "></div>`,
-  iconSize: [10,10],
-  iconAnchor: [5,5]
 });
 
 /* ============================================================
@@ -470,15 +476,19 @@ factories.forEach(f => {
 
   m.on('click', () => {
     openSidebar(f);
+    m.openPopup();
   });
 
   m.bindPopup(`
     <div class="label">Factory ${f.number}</div>
     <h4>${f.city}, ${f.country}</h4>
     <p><strong>Director:</strong> ${f.director}</p>
-    <p><strong>Size:</strong> ${f.size}</p>
-    <p><strong>Products:</strong> ${f.products.length ? f.products.join(', ') : 'TBD'}</p>
-  `);
+    <p><strong>Staff:</strong> ${f.staff} employees</p>
+    <p><strong>Products:</strong> ${f.products.join(', ')}</p>
+  `, {
+    maxWidth: 300,
+    className: 'factory-popup'
+  });
 });
 
 /* ============================================================
@@ -497,25 +507,6 @@ locations.forEach(loc => {
   m.bindPopup(`
     <h4>${loc.name}</h4>
     <p><strong>Country/Region:</strong> ${loc.country}</p>
-  `);
-});
-
-/* ============================================================
-   ADD MAJOR CITIES TO MAP
-   ============================================================ */
-majorCities.forEach(city => {
-  const m = L.marker([city.lat, city.lng], { icon: cityIcon(), zIndexOffset: 500 }).addTo(map);
-
-  m.bindTooltip(city.name, {
-    permanent: true,
-    direction: 'right',
-    offset: [8, 0],
-    className: 'city-label'
-  });
-
-  m.bindPopup(`
-    <h4>${city.name}</h4>
-    <p><strong>Country:</strong> ${city.country}</p>
   `);
 });
 
