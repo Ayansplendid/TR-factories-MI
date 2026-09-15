@@ -15,7 +15,7 @@
     --line: #D9D4C8;
     --dark-blue: #0a1628;
     --violet: #1a0f3d;
-    --neon-green: #39FF14;
+    --neon-violet: #DA70D6;
     --neon-blue: #00D9FF;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
@@ -98,10 +98,13 @@
 
   .leaflet-attribution-flag, .leaflet-attribution { display:none; }
 
-  /* Hide OpenStreetMap tile labels */
+  /* Hide all OSM tile labels, regions, villages, etc. */
   .leaflet-tile-pane {
-    filter: brightness(0.3) saturate(0.4) invert(1) hue-rotate(180deg);
+    filter: brightness(0.2) saturate(0.1) invert(1) hue-rotate(180deg) contrast(0.8);
   }
+
+  /* Hide popup for tiles */
+  .leaflet-popup { display: none; }
 </style>
 </head>
 <body>
@@ -150,7 +153,7 @@ const majorCities = [
 ];
 
 /* ============================================================
-   MAP SETUP — Dark Blue/Violet with NEON borders
+   MAP SETUP — Dark Blue background with Dark Violet Neon borders
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -161,7 +164,7 @@ const map = L.map('map', {
 }).setView([25, 40], 2);
 
 /* ============================================================
-   DARK BACKGROUND LAYER (OpenStreetMap with dark filter)
+   COMPLETELY MINIMAL BACKGROUND LAYER
    ============================================================ */
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '',
@@ -170,23 +173,21 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 /* ============================================================
-   FETCH WORLD BORDERS GEOJSON & ADD NEON BORDERS
+   FETCH WORLD BORDERS GEOJSON & ADD DARK VIOLET NEON BORDERS
    ============================================================ */
 fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(response => response.json())
   .then(data => {
     L.geoJSON(data, {
       style: {
-        color: '#39FF14',           /* Neon green border */
-        weight: 2.5,
-        opacity: 0.95,
-        fillColor: 'rgba(10, 22, 40, 0.5)',  /* Dark blue fill */
-        fillOpacity: 0.3
+        color: '#DA70D6',           /* Dark Violet Neon border */
+        weight: 3,
+        opacity: 1.0,
+        fillColor: '#0a1628',       /* Dark blue fill */
+        fillOpacity: 0.5
       },
       onEachFeature: function(feature, layer) {
-        if (feature.properties.ADMIN) {
-          layer.bindPopup(`<h4>${feature.properties.ADMIN}</h4>`);
-        }
+        layer.unbindPopup();
       }
     }).addTo(map);
   })
