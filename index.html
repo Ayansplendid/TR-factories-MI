@@ -7,15 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <style>
   :root{
-    --steel: #1C1F22;
-    --concrete: #F5F3EE;
-    --amber: #D98E2B;
-    --teal: #3E5C6B;
-    --grey: #8A8F94;
-    --line: #D9D4C8;
     --dark-blue: #0a1628;
-    --violet: #1a0f3d;
-    --neon-blue: #00D9FF;
     --light-green: #c5e5c5;
   }
   *{ box-sizing: border-box; margin:0; padding:0; }
@@ -26,8 +18,14 @@
     color: #1a1a2e;
     overflow: hidden;
   }
-  #map{ height:100vh; width:100vw; transition: width 0.3s ease; }
-  #map.sidebar-open{ width: calc(100vw - 350px); }
+  #map{ 
+    height:100vh; 
+    width:100vw; 
+    transition: width 0.3s ease; 
+  }
+  #map.sidebar-open{ 
+    width: calc(100vw - 350px); 
+  }
 
   /* ============================================================
      SIDEBAR STYLES
@@ -130,22 +128,18 @@
     border: 3px solid #DA70D6;
     box-shadow: 0 0 20px rgba(218, 112, 214, 0.5);
   }
+
   .leaflet-popup-content-wrapper h4{
     font-size:15px;
     font-weight:700;
     margin-bottom:4px;
     color: #DA70D6;
   }
+
   .leaflet-popup-content-wrapper p{
     font-size:13px;
     margin: 5px 0;
     color: #b0b0e0;
-  }
-  .leaflet-popup-content-wrapper .label{
-    font-size:11px;
-    color: #7a7aff;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
   }
 
   .leaflet-popup-close-button{
@@ -154,42 +148,86 @@
     font-weight: bold;
   }
 
-  .factory-label{
-    background: none;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    font-size: 12px;
+  /* ============================================================
+     TOOLTIP STYLES
+     ============================================================ */
+  .factory-city-label{
+    background: rgba(139, 90, 60, 0.95);
+    border: 2px solid #ffb347;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
     font-weight: 700;
-    color: #8B5A3C;
-    text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 -1px 3px rgba(255,255,255,0.8);
-    z-index: 1000;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
   }
-  .factory-label::before{
+
+  .factory-city-label::before{
     display:none;
   }
 
   .location-label{
-    background: none;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    font-size: 12px;
+    background: rgba(0, 102, 204, 0.95);
+    border: 2px solid #0099ff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
     font-weight: 700;
-    color: #0066cc;
-    text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 -1px 3px rgba(255,255,255,0.8);
-    z-index: 1000;
-    cursor: pointer;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
   }
+
   .location-label::before{
     display:none;
   }
 
-  .capital-label{
-    display: none;
+  .country-label{
+    background: rgba(26, 58, 74, 0.95);
+    border: 2px solid #DA70D6;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #DA70D6;
+    text-shadow: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+  }
+
+  .country-label::before{
+    display:none;
+  }
+
+  /* ============================================================
+     HOVER TOOLTIP
+     ============================================================ */
+  .hover-tooltip{
+    background: #1a1a2e !important;
+    border: 2px solid #DA70D6 !important;
+    border-radius: 4px !important;
+    padding: 8px 10px !important;
+    color: #e0e0ff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 10px rgba(218, 112, 214, 0.6) !important;
+    max-width: 280px !important;
+  }
+
+  .hover-tooltip strong{
+    color: #DA70D6;
   }
 
   .leaflet-attribution-flag, .leaflet-attribution { display:none; }
+
+  /* Custom map tiles filter */
+  .light-map-tiles {
+    filter: brightness(1.2) saturate(0.4) hue-rotate(80deg);
+    opacity: 0.15 !important;
+  }
 </style>
 </head>
 <body>
@@ -207,36 +245,11 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="data.js"></script>
+
 <script>
 /* ============================================================
-   FACTORY DATA
-   ============================================================ */
-const factories = [
-  { number: 1, name: "Factory 1", city: "Ho Chi Minh City", country: "Vietnam", lat: 10.8231, lng: 106.6297, director: "Nguyen Van A", staff: 850, products: ["Electronics", "Components"] },
-  { number: 2, name: "Factory 2", city: "Qingdao", country: "China", lat: 36.0671, lng: 120.3826, director: "Li Wei", staff: 1200, products: ["Textiles", "Fabrics"], code: "TMEQ", category: "Marine Infra Products" },
-  { number: 3, name: "Factory 3", city: "London", country: "United Kingdom", lat: 51.5072, lng: -0.1276, director: "James Smith", staff: 450, products: ["Machinery", "Parts"] },
-  { number: 4, name: "Factory 4", city: "Manchester", country: "United Kingdom", lat: 53.4808, lng: -2.2426, director: "Michael Brown", staff: 680, products: ["Chemicals", "Compounds"] },
-  { number: 5, name: "Factory 5", city: "Birmingham", country: "United Kingdom", lat: 52.4862, lng: -1.8904, director: "Sarah Johnson", staff: 520, products: ["Metal Works", "Castings"] },
-  { number: 6, name: "Factory 6", city: "Glasgow", country: "United Kingdom", lat: 55.8642, lng: -4.2518, director: "Robert Wilson", staff: 390, products: ["Electronics", "Circuits"] },
-  { number: 7, name: "Factory 7", city: "Berryville", country: "USA (VA)", lat: 39.1496, lng: -77.9880, director: "David Miller", staff: 560, products: ["Plastics", "Polymers"] },
-  { number: 8, name: "Factory 8", city: "Ahmedabad", country: "India", lat: 23.0225, lng: 72.5714, director: "Rajesh Patel", staff: 920, products: ["Pharmaceuticals", "Medicines"] }
-];
-
-/* ============================================================
-   LOCATION DATA — Blue dots with product info
-   ============================================================ */
-const locations = [
-  { name: "Dubai", country: "UAE", lat: 25.2048, lng: 55.2708, code: "TMEDX", category: "Hub & Distribution" },
-  { name: "Trelleborg", country: "Sweden", lat: 55.3675, lng: 13.1593, code: "TMETR", category: "Port & Logistics" },
-  { name: "Rotterdam", country: "Netherlands", lat: 51.9289, lng: 4.3957, code: "TMEROT", category: "Port & Logistics" },
-  { name: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631, code: "TMEMB", category: "Pacific Hub" },
-  { name: "Houston", country: "Texas, USA", lat: 29.7604, lng: -95.3698, code: "TMEHS", category: "North America Hub" },
-  { name: "Dordrecht", country: "Netherlands", lat: 51.8161, lng: 4.6695, code: "TMEDDR", category: "Port & Logistics" },
-  { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, code: "TMESG", category: "Asia Pacific Hub" }
-];
-
-/* ============================================================
-   MAP SETUP — Light green background, more transparent
+   MAP SETUP
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -247,64 +260,62 @@ const map = L.map('map', {
 }).setView([25, 40], 2);
 
 /* ============================================================
-   TRANSPARENT LIGHT GREEN BACKGROUND LAYER
+   VERY TRANSPARENT BACKGROUND LAYER
    ============================================================ */
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '',
   maxZoom: 19,
   noWrap: true,
   className: 'light-map-tiles',
-  opacity: 0.3
+  opacity: 0.15
 }).addTo(map);
 
-/* Apply light green filter to tiles */
-const style = document.createElement('style');
-style.innerHTML = `
-  .light-map-tiles {
-    filter: brightness(1.5) saturate(0.5) hue-rotate(80deg);
-    opacity: 0.3 !important;
-  }
-`;
-document.head.appendChild(style);
-
-/* Store GeoJSON layer for hover effects */
-let geoJSONLayer;
-
 /* ============================================================
-   FETCH WORLD BORDERS GEOJSON & ADD DARK BLUE BORDERS
+   COUNTRY BORDERS WITH HOVER
    ============================================================ */
 fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(response => response.json())
   .then(data => {
-    geoJSONLayer = L.geoJSON(data, {
-      style: {
-        color: '#1a3a4a',           /* Dark blue border */
-        weight: 2,
-        opacity: 0.8,
-        fillColor: '#c5e5c5',       /* Light green fill */
-        fillOpacity: 0.15
+    L.geoJSON(data, {
+      style: function(feature) {
+        return {
+          color: '#1a4d6d',
+          weight: 2,
+          opacity: 0.9,
+          fillColor: '#7eb37e',
+          fillOpacity: 0.25
+        };
       },
       onEachFeature: function(feature, layer) {
-        layer.unbindPopup();
+        const countryName = feature.properties.ADMIN || 'Unknown';
         
-        /* Add hover effect */
         layer.on('mouseover', function() {
           this.setStyle({
-            color: '#0a1628',
+            color: '#DA70D6',
             weight: 4,
             opacity: 1.0,
-            fillOpacity: 0.25
+            fillColor: '#9dd99d',
+            fillOpacity: 0.4
           });
           this.bringToFront();
+          
+          this.bindTooltip(countryName, {
+            permanent: false,
+            direction: 'center',
+            className: 'country-label',
+            offset: [0, 0]
+          }).openTooltip();
         });
         
         layer.on('mouseout', function() {
           this.setStyle({
-            color: '#1a3a4a',
+            color: '#1a4d6d',
             weight: 2,
-            opacity: 0.8,
-            fillOpacity: 0.15
+            opacity: 0.9,
+            fillColor: '#7eb37e',
+            fillOpacity: 0.25
           });
+          this.closeTooltip();
         });
       }
     }).addTo(map);
@@ -363,43 +374,6 @@ function openFactorySidebar(factory) {
   mapDiv.classList.add('sidebar-open');
 }
 
-function openLocationSidebar(location) {
-  const sidebar = document.getElementById('sidebar');
-  const sidebarContent = document.getElementById('sidebar-content');
-  const sidebarTitle = document.getElementById('sidebar-title');
-  const mapDiv = document.getElementById('map');
-  
-  sidebarTitle.textContent = 'Location Details';
-  
-  sidebarContent.innerHTML = `
-    <div class="info-section">
-      <div class="info-label">Location Name</div>
-      <div class="info-value">
-        <span class="factory-number">${location.code}</span>
-        ${location.name}
-      </div>
-    </div>
-
-    <div class="info-section">
-      <div class="info-label">Country/Region</div>
-      <div class="info-value">${location.country}</div>
-    </div>
-
-    <div class="info-section">
-      <div class="info-label">Coordinates</div>
-      <div class="info-value">${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}</div>
-    </div>
-
-    <div class="info-section">
-      <div class="info-label">Category</div>
-      <div class="info-value">${location.category}</div>
-    </div>
-  `;
-  
-  sidebar.classList.add('open');
-  mapDiv.classList.add('sidebar-open');
-}
-
 function closeSidebar() {
   const sidebar = document.getElementById('sidebar');
   const mapDiv = document.getElementById('map');
@@ -410,7 +384,7 @@ function closeSidebar() {
 document.getElementById('sidebar-close').addEventListener('click', closeSidebar);
 
 /* ============================================================
-   FACTORY MARKER — Brown dots
+   FACTORY ICON
    ============================================================ */
 const factoryIcon = () => L.divIcon({
   className: '',
@@ -426,7 +400,7 @@ const factoryIcon = () => L.divIcon({
 });
 
 /* ============================================================
-   LOCATION MARKER — Blue dots
+   LOCATION ICON
    ============================================================ */
 const locationIcon = () => L.divIcon({
   className: '',
@@ -447,80 +421,113 @@ const locationIcon = () => L.divIcon({
 factories.forEach(f => {
   const m = L.marker([f.lat, f.lng], { icon: factoryIcon(), zIndexOffset: 1000 }).addTo(map);
 
+  /* Always visible city name label */
   m.bindTooltip(f.city, {
     permanent: true,
     direction: 'right',
-    offset: [8, 0],
-    className: 'factory-label'
+    offset: [12, 0],
+    className: 'factory-city-label'
   });
 
+  /* Hover tooltip - show factory info */
+  const hoverContent = `<strong>${f.name}</strong><br/>Director: ${f.director}<br/>Staff: ${f.staff} employees<br/>Products: ${f.products.join(', ')}`;\n  
+  m.on('mouseover', function() {
+    this.bindTooltip(hoverContent, {
+      permanent: false,
+      direction: 'top',
+      offset: [0, -15],
+      className: 'hover-tooltip',
+      opacity: 1
+    }).openTooltip();
+  });
+
+  m.on('mouseout', function() {
+    this.closeTooltip();
+  });
+
+  /* Also hover over city name */
+  const tooltipElement = m.getTooltip();
+  if (tooltipElement) {
+    L.DomEvent.on(tooltipElement, 'mouseover', function() {
+      m.bindTooltip(hoverContent, {
+        permanent: false,
+        direction: 'top',
+        offset: [0, -15],
+        className: 'hover-tooltip',
+        opacity: 1
+      }).openTooltip();
+    });
+
+    L.DomEvent.on(tooltipElement, 'mouseout', function() {
+      m.closeTooltip();
+    });
+  }
+
+  /* Click on dot or city name to open sidebar */
   m.on('click', () => {
     openFactorySidebar(f);
-    m.openPopup();
   });
 
   m.bindPopup(`
-    <div class="label">Factory ${f.number}</div>
-    <h4>${f.city}, ${f.country}</h4>
-    <p><strong>Director:</strong> ${f.director}</p>
-    <p><strong>Staff:</strong> ${f.staff} employees</p>
-    <p><strong>Products:</strong> ${f.products.join(', ')}</p>
-  `, {
-    maxWidth: 300,
-    className: 'factory-popup'
-  });
-});
-
-/* ============================================================
-   ADD LOCATIONS TO MAP WITH HOVER TOOLTIPS
-   ============================================================ */
-locations.forEach(loc => {
-  const m = L.marker([loc.lat, loc.lng], { icon: locationIcon(), zIndexOffset: 1000 }).addTo(map);
-
-  /* Hover tooltip showing code and category */
-  m.bindTooltip(`<strong>${loc.code}</strong> - ${loc.category}`, {
-    permanent: false,
-    direction: 'top',
-    offset: [0, -15],
-    className: 'location-hover-tooltip',
-    opacity: 0.95
-  });
-
-  /* Permanent label with location name */
-  m.bindTooltip(loc.name, {
-    permanent: true,
-    direction: 'right',
-    offset: [8, 0],
-    className: 'location-label'
-  });
-
-  /* Click to open sidebar */
-  m.on('click', () => {
-    openLocationSidebar(loc);
-  });
-
-  m.bindPopup(`
-    <h4>${loc.name}</h4>
-    <p><strong>Code:</strong> ${loc.code}</p>
-    <p><strong>Category:</strong> ${loc.category}</p>
-    <p><strong>Country/Region:</strong> ${loc.country}</p>
+    <div style="font-size:11px;color:#7a7aff;text-transform:uppercase;letter-spacing:0.03em;">Factory ${f.number}</div>
+    <h4 style="font-size:15px;font-weight:700;margin:4px 0;color:#DA70D6;">${f.city}, ${f.country}</h4>
+    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Director:</strong> ${f.director}</p>
+    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Staff:</strong> ${f.staff} employees</p>
+    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Products:</strong> ${f.products.join(', ')}</p>
   `, {
     maxWidth: 300
   });
 });
 
 /* ============================================================
-   HANDLE WINDOW RESIZE FOR MAP
+   ADD LOCATIONS TO MAP
+   ============================================================ */
+locations.forEach(loc => {
+  const m = L.marker([loc.lat, loc.lng], { icon: locationIcon(), zIndexOffset: 1000 }).addTo(map);
+
+  /* Always visible location name label */
+  m.bindTooltip(loc.name, {
+    permanent: true,
+    direction: 'right',
+    offset: [12, 0],
+    className: 'location-label'
+  });
+
+  /* Hover tooltip - show code + category */
+  const hoverContent = `<strong>${loc.code}</strong><br/>${loc.category}`;\n  
+  m.on('mouseover', function() {
+    this.bindTooltip(hoverContent, {
+      permanent: false,
+      direction: 'top',
+      offset: [0, -15],
+      className: 'hover-tooltip',
+      opacity: 1
+    }).openTooltip();
+  });
+
+  m.on('mouseout', function() {
+    this.closeTooltip();
+  });
+
+  m.bindPopup(`
+    <h4 style="font-size:15px;font-weight:700;margin:4px 0;color:#DA70D6;">${loc.name}</h4>
+    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Code:</strong> ${loc.code}</p>
+    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Category:</strong> ${loc.category}</p>
+    <p style="font-size:13px;margin:5px 0;color:#b0b0e0;"><strong>Country/Region:</strong> ${loc.country}</p>
+  `, {
+    maxWidth: 300
+  });
+});
+
+/* ============================================================
+   HANDLE WINDOW RESIZE
    ============================================================ */
 window.addEventListener('resize', () => {
   setTimeout(() => {
     map.invalidateSize();
   }, 250);
 });
-
 </script>
-</head>
-<body>
 
 </body>
 </html>
