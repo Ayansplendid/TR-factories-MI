@@ -1,5 +1,5 @@
 /* ============================================================
-   MAP SETUP — Light green background, more transparent
+   MAP SETUP — Dark blue background
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -10,21 +10,19 @@ const map = L.map('map', {
 }).setView([25, 40], 2);
 
 /* ============================================================
-   TRANSPARENT LIGHT GREEN BACKGROUND LAYER
+   MAP TILE LAYER
    ============================================================ */
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '',
   maxZoom: 19,
-  noWrap: true,
-  className: 'light-map-tiles',
-  opacity: 0.25
+  noWrap: true
 }).addTo(map);
 
 /* Store GeoJSON layer for hover effects */
 let geoJSONLayer;
 
 /* ============================================================
-   FETCH WORLD BORDERS GEOJSON & ADD DARK BLUE BORDERS
+   FETCH WORLD BORDERS GEOJSON & ADD DARK BLUE FILL
    ============================================================ */
 fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(response => response.json())
@@ -32,11 +30,11 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
     geoJSONLayer = L.geoJSON(data, {
       style: function(feature) {
         return {
-          color: '#0d2438',           /* Very dark blue border */
+          color: '#1a3a4a',
           weight: 3,
           opacity: 1.0,
-          fillColor: '#8ec68e',       /* Medium green fill */
-          fillOpacity: 0.35
+          fillColor: '#0a1628',
+          fillOpacity: 0.5
         };
       },
       onEachFeature: function(feature, layer) {
@@ -46,11 +44,11 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
         /* Add hover effect */
         layer.on('mouseover', function() {
           this.setStyle({
-            color: '#DA70D6',         /* Neon purple on hover */
+            color: '#DA70D6',
             weight: 5,
             opacity: 1.0,
-            fillColor: '#a8e6a8',
-            fillOpacity: 0.5
+            fillColor: '#1a0f3d',
+            fillOpacity: 0.6
           });
           this.bringToFront();
           
@@ -65,11 +63,11 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
         
         layer.on('mouseout', function() {
           this.setStyle({
-            color: '#0d2438',
+            color: '#1a3a4a',
             weight: 3,
             opacity: 1.0,
-            fillColor: '#8ec68e',
-            fillOpacity: 0.35
+            fillColor: '#0a1628',
+            fillOpacity: 0.5
           });
           this.closeTooltip();
         });
