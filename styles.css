@@ -8,31 +8,26 @@
   --dark-blue: #0a1628;
   --violet: #1a0f3d;
   --neon-blue: #00D9FF;
-  --light-green: #c5e5c5;
 }
 
 *{ box-sizing: border-box; margin:0; padding:0; }
 html, body{ height:100%; }
 body{
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: var(--light-green);
-  color: #1a1a2e;
+  background: var(--dark-blue);
+  color: #e0e0ff;
   overflow: hidden;
 }
 
 #map{ 
   height:100vh; 
   width:100vw; 
-  background: var(--light-green);
+  background: var(--dark-blue);
   transition: width 0.3s ease; 
 }
 
 #map.sidebar-open{ 
   width: calc(100vw - 350px); 
-}
-
-.light-map-tiles{
-  filter: brightness(1.2) saturate(0.4) hue-rotate(80deg);
 }
 
 /* ============================================================
@@ -173,8 +168,8 @@ body{
   padding: 0;
   font-size: 12px;
   font-weight: 700;
-  color: #8B5A3C;
-  text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 -1px 3px rgba(255,255,255,0.8);
+  color: #ffb347;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 -1px 3px rgba(0,0,0,0.9);
   z-index: 1000;
   pointer-events: none;
 }
@@ -190,8 +185,8 @@ body{
   padding: 0;
   font-size: 12px;
   font-weight: 700;
-  color: #0066cc;
-  text-shadow: 0 1px 3px rgba(255,255,255,0.8), 0 -1px 3px rgba(255,255,255,0.8);
+  color: #00ffff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 -1px 3px rgba(0,0,0,0.9);
   z-index: 1000;
   cursor: pointer;
   pointer-events: none;
