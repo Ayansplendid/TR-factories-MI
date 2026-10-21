@@ -23,11 +23,16 @@ body{
 #map{ 
   height:100vh; 
   width:100vw; 
+  background: var(--light-green);
   transition: width 0.3s ease; 
 }
 
 #map.sidebar-open{ 
   width: calc(100vw - 350px); 
+}
+
+.light-map-tiles{
+  filter: brightness(1.2) saturate(0.4) hue-rotate(80deg);
 }
 
 /* ============================================================
