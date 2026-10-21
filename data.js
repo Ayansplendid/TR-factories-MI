@@ -5,7 +5,7 @@ const factories = [
   { number: 1, name: "Factory 1", city: "Ho Chi Minh City", country: "Vietnam", lat: 10.8231, lng: 106.6297, director: "Nguyen Van A", staff: 850, products: ["Electronics", "Components"] },
   { number: 2, name: "Factory 2", city: "Qingdao", country: "China", lat: 36.0671, lng: 120.3826, director: "Li Wei", staff: 1200, products: ["Textiles", "Fabrics"], code: "TMEQ", category: "Marine Logistics" },
   { number: 3, name: "Factory 3", city: "Westbury", country: "United Kingdom", lat: 51.2635, lng: -2.1876, director: "James Smith", staff: 450, products: ["Machinery", "Parts"] },
-  { number: 4, name: "Factory 4", city: "Hawarde", country: "United Kingdom", lat: 53.1905, lng: -2.9909, director: "Michael Brown", staff: 680, products: ["Chemicals", "Compounds"] },
+  { number: 4, name: "Factory 4", city: "Hawarden", country: "United Kingdom", lat: 53.1905, lng: -2.9909, director: "Michael Brown", staff: 680, products: ["Chemicals", "Compounds"] },
   { number: 5, name: "Factory 5", city: "Halesowen", country: "United Kingdom", lat: 52.4563, lng: -2.0496, director: "Sarah Johnson", staff: 520, products: ["Metal Works", "Castings"] },
   { number: 6, name: "Factory 6", city: "Retford", country: "United Kingdom", lat: 53.3213, lng: -0.9434, director: "Robert Wilson", staff: 390, products: ["Electronics", "Circuits"] },
   { number: 7, name: "Factory 7", city: "Berryville", country: "USA (VA)", lat: 39.1496, lng: -77.9880, director: "David Miller", staff: 560, products: ["Plastics", "Polymers"] },
