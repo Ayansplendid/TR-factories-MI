@@ -1,5 +1,5 @@
 /* ============================================================
-   MAP SETUP — Dark blue background
+   MAP SETUP — Dark gray background
    ============================================================ */
 const map = L.map('map', {
   zoomControl: true,
@@ -12,9 +12,17 @@ const map = L.map('map', {
 /* ============================================================
    MAP TILE LAYER
    ============================================================ */
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '',
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri, HERE, Garmin, OpenStreetMap contributors, and the GIS user community',
   maxZoom: 19,
+  bounds: [[-85.05112878, -180], [85.05112878, 180]],
+  noWrap: true
+}).addTo(map);
+
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri, HERE, Garmin, OpenStreetMap contributors, and the GIS user community',
+  maxZoom: 19,
+  bounds: [[-85.05112878, -180], [85.05112878, 180]],
   noWrap: true
 }).addTo(map);
 
@@ -22,7 +30,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let geoJSONLayer;
 
 /* ============================================================
-   FETCH WORLD BORDERS GEOJSON & ADD DARK BLUE FILL
+   FETCH WORLD BORDERS GEOJSON & ADD DARK GRAY FILL
    ============================================================ */
 fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
   .then(response => response.json())
@@ -30,11 +38,11 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
     geoJSONLayer = L.geoJSON(data, {
       style: function(feature) {
         return {
-          color: '#1a3a4a',
+          color: '#92989e',
           weight: 3,
           opacity: 1.0,
-          fillColor: '#0a1628',
-          fillOpacity: 0.5
+          fillColor: '#272b30',
+          fillOpacity: 0.72
         };
       },
       onEachFeature: function(feature, layer) {
@@ -45,10 +53,10 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
         layer.on('mouseover', function() {
           this.setStyle({
             color: '#DA70D6',
-            weight: 5,
+            weight: 4.5,
             opacity: 1.0,
-            fillColor: '#1a0f3d',
-            fillOpacity: 0.6
+            fillColor: '#34383d',
+            fillOpacity: 0.78
           });
           this.bringToFront();
           
@@ -63,11 +71,11 @@ fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/coun
         
         layer.on('mouseout', function() {
           this.setStyle({
-            color: '#1a3a4a',
+            color: '#92989e',
             weight: 3,
             opacity: 1.0,
-            fillColor: '#0a1628',
-            fillOpacity: 0.5
+            fillColor: '#272b30',
+            fillOpacity: 0.72
           });
           this.closeTooltip();
         });
