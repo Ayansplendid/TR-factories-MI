@@ -22,8 +22,12 @@ body{
 #map{ 
   height:100vh; 
   width:100vw; 
-  background: var(--dark-blue);
+  background: #171a1d;
   transition: width 0.3s ease; 
+}
+
+.leaflet-container{
+  background: #171a1d;
 }
 
 #map.sidebar-open{ 
@@ -232,4 +236,11 @@ body{
   color: #DA70D6;
 }
 
-.leaflet-attribution-flag, .leaflet-attribution { display:none; }
+.leaflet-attribution-flag{ display:none; }
+.leaflet-control-attribution{
+  background: rgba(20, 22, 24, 0.85) !important;
+  color: #aeb4ba !important;
+}
+.leaflet-control-attribution a{
+  color: #d0d4d8 !important;
+}
